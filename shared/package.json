@@ -1,0 +1,11 @@
+{
+  "name": "authservice-shared",
+  "version": "0.0.1",
+  "description": "Shares stuff inside authservice",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Xapadoan",
+  "license": "GPL-3.0-or-later"
+}

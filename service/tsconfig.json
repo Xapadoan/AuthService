@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["src", "./shared"],
+    "outDir": "dist",
+    "paths": {
+      "@shared/*": ["./shared/*"],
+      "@lib/*": ["./service/src/lib/*"],
+      "@data": ["./service/src/data"],
+      "@controllers/*": ["./service/src/controllers/*"],
+      "@middlewares/*": ["./service/src/middlewares/*"]
+    }
+  },
+  "include": ["**/*.ts"],
+    "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}
