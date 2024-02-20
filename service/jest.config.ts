@@ -63,7 +63,7 @@ const config: Config = {
   globalSetup: '<rootDir>/tests/globalSetup.ts',
 
   // A path to a module which exports an async function that is triggered once after all test suites
-  globalTeardown: '<rootDir>/tests/globalTeardown.ts',
+  // globalTeardown: '<rootDir>/tests/globalTeardown.ts',
 
   // A set of global variables that need to be available in all test environments
   // globals: {
@@ -85,7 +85,8 @@ const config: Config = {
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
-    '^@repo/(.*)$': '<rootDir>/src/repo/$1',
+    '^@data$': '<rootDir>/src/data/index.ts',
+    '^@middlewares/(.*)$': '<rootDir>/src/middlewares/$1',
     '^@lib/(.*)$': '<rootDir>/src/lib/$1',
   },
 
@@ -131,7 +132,7 @@ const config: Config = {
   // The paths to modules that run some code to configure or set up the testing environment before each test
   // setupFiles: [],
 
-  silent: true,
+  silent: false,
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],
 
@@ -182,7 +183,7 @@ const config: Config = {
   // unmockedModulePathPatterns: undefined,
 
   // Indicates whether each individual test should be reported during the run
-  verbose: false,
+  verbose: true,
 
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],

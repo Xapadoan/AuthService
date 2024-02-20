@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import knex from '@data';
+import '@lib/http';
 
 export async function integrationAuth(
   req: Request,
@@ -18,7 +19,7 @@ export async function integrationAuth(
     }
     const integration = await knex('integrations')
       .select('*')
-      .where({ id: integrationId, apiKey })
+      .where({ id: Number(integrationId), apiKey })
       .first();
     if (!integration) {
       return res.status(403).json({ error: 'Forbidden' });

@@ -25,3 +25,8 @@ export async function up(knex: Knex) {
       table.dateTime('created_at').notNullable().defaultTo(knex.raw('NOW()'));
     });
 }
+
+export async function down(knex: Knex) {
+  await knex.schema.dropTable('users');
+  await knex.schema.dropTable('integrations');
+}
