@@ -27,12 +27,12 @@ import { expectResolvedValueEqual, expectResolvedValueMatch } from '../utils';
 describe('Integration Auth Middleware', () => {
   const app = express();
   const controllerSpy = jest.fn((_, res: Response) => res.json({ ok: 'OK' }));
-  beforeAll(async () => {
+  beforeAll(() => {
     app.use(express.json({ type: 'application/json' }));
     app.use('/:integrationId', integrationAuth);
     app.get('/:integrationId', controllerSpy);
   });
-  afterAll(async () => {
+  afterAll(() => {
     jest.restoreAllMocks();
     jest.resetModules();
   });

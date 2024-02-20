@@ -1,7 +1,7 @@
 import { createClient } from 'redis';
 
 const client = createClient();
-const prefix = 'authservice-main:';
+const prefix = 'authservice-main';
 
 export function get(key: string) {
   return client.get(`${prefix}:${key}`);

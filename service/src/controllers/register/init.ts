@@ -11,13 +11,10 @@ function validate(body: any): body is RegisterInitInput {
   return true;
 }
 
-export async function init({
-  req,
-  res,
-}: {
-  req: Request<{ integrationId: number }>;
-  res: Response<HTTPError | RegisterInitOutput>;
-}) {
+export async function init(
+  req: Request,
+  res: Response<HTTPError | RegisterInitOutput>
+) {
   try {
     if (!req.integration) {
       return res.status(401).json({ error: 'Missing authentication' });
@@ -26,7 +23,7 @@ export async function init({
       return res.status(400).json({ error: 'Bad Body' });
     }
     const { email } = req.body;
-    const [id] = await knex('users').insert({
+    const id = await knex('users').insert({
       integrationId: req.integration.id,
       email,
       cardId: 'pending',
