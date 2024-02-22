@@ -8,7 +8,6 @@ export interface Integration {
 }
 
 export interface RegisterInitInput {
-  integrationId: number;
   email: string;
 }
 

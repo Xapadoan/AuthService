@@ -1,0 +1,24 @@
+{
+  "name": "authservice-server",
+  "version": "0.0.1",
+  "description": "The lib that should run on the server",
+  "main": "src/ServerClient.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xapadoan/AuthService.git"
+  },
+  "author": "Xapadoan",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Xapadoan/AuthService/issues"
+  },
+  "homepage": "https://github.com/Xapadoan/AuthService#readme",
+  "dependencies": {
+    "redis": "^4.6.13",
+    "uuid": "^9.0.1"
+  }
+}

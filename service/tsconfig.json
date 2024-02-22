@@ -1,10 +1,10 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDirs": ["src", "./shared"],
+    "rootDirs": ["service/src", "shared"],
     "outDir": "dist",
     "paths": {
-      "@shared/*": ["./shared/*"],
+      "@shared/*": ["./shared/src/*"],
       "@lib/*": ["./service/src/lib/*"],
       "@data": ["./service/src/data"],
       "@controllers/*": ["./service/src/controllers/*"],

@@ -28,7 +28,7 @@ const config: Config = {
   coverageDirectory: 'coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['<rootDir>/src/data'],
+  // coveragePathIgnorePatterns: ['<rootDir>/src/data'],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
@@ -60,7 +60,7 @@ const config: Config = {
   forceExit: true,
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  globalSetup: '<rootDir>/tests/globalSetup.ts',
+  // globalSetup: '<rootDir>/tests/globalSetup.ts',
 
   // A path to a module which exports an async function that is triggered once after all test suites
   // globalTeardown: '<rootDir>/tests/globalTeardown.ts',
@@ -85,9 +85,6 @@ const config: Config = {
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
-    '^@data$': '<rootDir>/src/data/index.ts',
-    '^@middlewares/(.*)$': '<rootDir>/src/middlewares/$1',
-    '^@controllers/(.*)$': '<rootDir>/src/controllers/$1',
     '^@lib/(.*)$': '<rootDir>/src/lib/$1',
     '^@shared/(.*)$': '<rootDir>/../shared/src/$1',
   },

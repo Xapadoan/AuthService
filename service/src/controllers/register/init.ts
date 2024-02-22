@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import knex from '@data';
-import { set } from '@lib/redisClient';
+import { redisClient } from '@lib/redisClient';
 import { RegisterInitInput, RegisterInitOutput } from '@shared/types';
 import { HTTPError } from '@lib/http';
 
@@ -29,7 +29,7 @@ export async function init(
       cardId: 'pending',
     });
     const SVCRegisterToken = uuid();
-    await set(SVCRegisterToken, String(id), 10 * 60);
+    await redisClient.set(SVCRegisterToken, String(id), 10 * 60);
     return res.status(201).json({ SVCRegisterToken });
   } catch (error) {
     console.log('Error: ', error);

@@ -2,8 +2,14 @@
   "name": "authservice",
   "version": "0.0.1",
   "description": "An authentication service based on AI",
-  "workspaces": ["service", "shared"],
-  "scripts": {},
+  "workspaces": [
+    "service",
+    "shared",
+    "server"
+  ],
+  "scripts": {
+    "test:unit": "npm -w shared run test && npm -w service run test && npm -w server run test"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.19",

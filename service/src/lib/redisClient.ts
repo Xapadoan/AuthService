@@ -1,12 +1,3 @@
-import { createClient } from 'redis';
+import { RedisClient } from '@shared/lib/RedisClient';
 
-const client = createClient();
-const prefix = 'authservice-main';
-
-export function get(key: string) {
-  return client.get(`${prefix}:${key}`);
-}
-
-export function set(key: string, value: string, EX?: number) {
-  return client.set(`${prefix}:${key}`, value, { EX });
-}
+export const redisClient = new RedisClient({ prefix: 'authservice-service' });

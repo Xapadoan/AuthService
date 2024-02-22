@@ -1,5 +1,5 @@
 const mockSet = jest.fn();
-jest.mock('@lib/redisClient', () => ({ set: mockSet }));
+jest.mock('@lib/redisClient', () => ({ redisClient: { set: mockSet } }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
 jest.mock('uuid', () => ({ v4: mockUuid }));
 const mockInsert = jest.fn().mockResolvedValue(1);

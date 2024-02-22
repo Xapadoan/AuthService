@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["shared/src"],
+    "outDir": "dist",
+    "paths": {
+      "@lib/*": ["./shared/src/lib/*"]
+    }
+  },
+  "include": ["**/*.ts"],
+    "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}

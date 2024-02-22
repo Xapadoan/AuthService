@@ -4,7 +4,6 @@
   "description": "The service itself",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.json",
     "test": "NODE_ENV=test jest"
   },
   "author": "Xapadoan",
