@@ -1,7 +1,10 @@
-import { RedisClient } from '@shared/lib/RedisClient';
+import { RedisClient } from 'shared';
 import { redisClient } from '@lib/redisClient';
 
 describe('Redis Client', () => {
+  afterAll(async () => {
+    await redisClient.close();
+  });
   it('should be a RedisClient', () => {
     expect(redisClient).toBeInstanceOf(RedisClient);
   });

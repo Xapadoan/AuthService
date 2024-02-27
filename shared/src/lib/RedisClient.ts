@@ -7,6 +7,7 @@ export class RedisClient {
   constructor({ prefix }: { prefix: string }) {
     this.prefix = prefix;
     this.client = createClient();
+    this.client.connect();
   }
 
   async get(key: string) {
@@ -14,5 +15,8 @@ export class RedisClient {
   }
   async set(key: string, value: string, EX?: number) {
     return this.client.set(`${this.prefix}:${key}`, value, { EX });
+  }
+  async close() {
+    await this.client.quit();
   }
 }

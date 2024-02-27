@@ -1,0 +1,23 @@
+{
+  "name": "authservice-browser",
+  "version": "0.0.1",
+  "description": "The browser lib to be installed on the front-end",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "parcel": "^2.11.0"
+  },
+  "scripts": {
+    "dev": "parcel htmlExample/register.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xapadoan/AuthService.git"
+  },
+  "author": "Xapadoan",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Xapadoan/AuthService/issues"
+  },
+  "homepage": "https://github.com/Xapadoan/AuthService#readme"
+}

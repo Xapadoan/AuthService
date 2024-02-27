@@ -4,7 +4,7 @@
   "description": "The lib that should run on the server",
   "main": "src/ServerClient.ts",
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsc --project tsconfig.json",
     "test": "jest"
   },
   "repository": {

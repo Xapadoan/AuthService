@@ -6,9 +6,5 @@
     "paths": {
       "@lib/*": ["./shared/src/lib/*"]
     }
-  },
-  "include": ["**/*.ts"],
-    "ts-node": {
-    "require": ["tsconfig-paths/register"]
   }
 }

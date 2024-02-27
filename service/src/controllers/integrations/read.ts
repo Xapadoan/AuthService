@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { HTTPError } from '@lib/http';
-import { Integration } from '@shared/types';
+import { HTTPError, Integration } from 'shared';
 
 export async function read(
   req: Request,

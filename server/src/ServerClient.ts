@@ -1,10 +1,11 @@
 import { v4 as uuid } from 'uuid';
 import {
   Integration,
-  RegisterInitInput,
-  RegisterInitOutput,
-} from '@shared/types';
-import { RedisClient } from '@shared/lib/RedisClient';
+  RegisterInitServiceInput,
+  RegisterInitServiceOutput,
+  RedisClient,
+  handleResponse,
+} from 'shared';
 
 const {
   AUTHSERVICE_INTEGRATION_ID,
@@ -29,20 +30,15 @@ export default class ServerClient {
     this.url = url;
   }
 
-  public async initRegister({ email }: RegisterInitInput) {
+  public async initRegister({ email }: RegisterInitServiceInput) {
     try {
       const EACRegisterToken = uuid();
       await this.redis.set(EACRegisterToken, 'pending', 60 * 10);
-      const { SVCRegisterToken }: RegisterInitOutput = await fetch(
-        `${this.url}/register`,
-        {
+      const { SVCRegisterToken }: RegisterInitServiceOutput =
+        await this.fetchService('register', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${AUTHSERVICE_INTEGRATION_API_KEY}`,
-          },
           body: JSON.stringify({ email }),
-        }
-      ).then((res) => res.json());
+        });
       return {
         uploadUrl: `${this.url}/register`,
         SVCRegisterToken,
@@ -65,7 +61,18 @@ export default class ServerClient {
       headers: {
         Authorization: `Bearer ${baseApiKey}`,
       },
-    }).then((res) => res.json());
+    }).then((res) => handleResponse<Integration>(res));
     return new ServerClient(integration, { url: baseUrl, apiKey: baseApiKey });
+  }
+
+  private async fetchService<T>(endpoint: 'register', init?: RequestInit) {
+    return fetch(`${this.url}/${endpoint}`, {
+      ...init,
+      headers: {
+        ...(init?.headers || {}),
+        Authorization: `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    }).then((res) => handleResponse<T>(res));
   }
 }

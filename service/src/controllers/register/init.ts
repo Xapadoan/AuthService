@@ -2,23 +2,27 @@ import { Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import knex from '@data';
 import { redisClient } from '@lib/redisClient';
-import { RegisterInitInput, RegisterInitOutput } from '@shared/types';
-import { HTTPError } from '@lib/http';
+import {
+  RegisterInitServiceInput,
+  RegisterInitServiceOutput,
+} from '@shared/types';
+import { HTTPError } from 'shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function validate(body: any): body is RegisterInitInput {
+function validate(body: any): body is RegisterInitServiceInput {
   if (typeof body['email'] !== 'string') return false;
   return true;
 }
 
 export async function init(
   req: Request,
-  res: Response<HTTPError | RegisterInitOutput>
+  res: Response<HTTPError | RegisterInitServiceOutput>
 ) {
   try {
     if (!req.integration) {
       return res.status(401).json({ error: 'Missing authentication' });
     }
+    console.log(req.body);
     if (!validate(req.body)) {
       return res.status(400).json({ error: 'Bad Body' });
     }

@@ -7,10 +7,16 @@ export interface Integration {
   resetCredentialsWebhook: string;
 }
 
-export interface RegisterInitInput {
+export interface RegisterInitServiceInput {
   email: string;
 }
 
-export interface RegisterInitOutput {
+export interface RegisterInitServiceOutput {
   SVCRegisterToken: string;
+}
+
+export interface RegisterInitServerOutput {
+  SVCRegisterToken: string;
+  EACRegisterToken: string;
+  uploadUrl: string;
 }
