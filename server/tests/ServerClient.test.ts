@@ -14,6 +14,7 @@ const mockUuid = jest.fn(() => 'mocked-uuid');
 jest.mock('uuid', () => ({ v4: mockUuid }));
 const mockFetchJson = jest.fn().mockResolvedValue(integration);
 const mockFetch = jest.fn().mockResolvedValue({
+  ok: true,
   json: mockFetchJson,
 });
 global.fetch = mockFetch;
@@ -122,6 +123,7 @@ describe('ServerClient Init Register', () => {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${client.apiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email: 'asd@mail.com' }),
     });

@@ -1,6 +1,13 @@
 const mockGet = jest.fn();
 const mockSet = jest.fn();
-const mockCreateClient = jest.fn(() => ({ set: mockSet, get: mockGet }));
+const mockConnect = jest.fn();
+const mockQuit = jest.fn();
+const mockCreateClient = jest.fn(() => ({
+  set: mockSet,
+  get: mockGet,
+  connect: mockConnect,
+  quit: mockQuit,
+}));
 jest.mock('redis', () => ({
   createClient: mockCreateClient,
 }));
@@ -12,6 +19,7 @@ describe('Redis Client', () => {
     const client = new RedisClient({ prefix: 'test' });
     expect(mockCreateClient).toHaveBeenCalled();
     expect(client.prefix).toEqual('test');
+    expect(mockConnect).toHaveBeenCalled();
   });
 
   it('should use the prefix', async () => {
@@ -20,5 +28,11 @@ describe('Redis Client', () => {
     expect(mockSet).toHaveBeenCalledWith('test:key', 'value', { EX: 60 });
     await client.get('key');
     expect(mockGet).toHaveBeenCalledWith('test:key');
+  });
+
+  it('should be able to close itself', async () => {
+    const client = new RedisClient({ prefix: 'test' });
+    await client.close();
+    expect(mockQuit).toHaveBeenCalled();
   });
 });

@@ -69,7 +69,6 @@ export default class ServerClient {
     return fetch(`${this.url}/${endpoint}`, {
       ...init,
       headers: {
-        ...(init?.headers || {}),
         Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
