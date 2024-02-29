@@ -7,11 +7,10 @@ interface OCRSpaceResponse {
   IsErroredOnProcessing: boolean;
   OCRExitCode: number;
   ErrorMessage?: string[];
-  ParsedResults: Array<{
+  ParsedResults?: Array<{
     FileParseExitCode: number;
     ParsedText: string;
     ErrorMessage?: string;
-    ErrorDetails?: string;
   }>;
 }
 
@@ -44,9 +43,9 @@ export async function textDetection(
     if (!parsedResults || parsedResults.FileParseExitCode !== 1) {
       console.error(
         'File Parse failed with code ',
-        parsedResults.FileParseExitCode
+        parsedResults?.FileParseExitCode || -1
       );
-      console.error('Message: ', parsedResults.ErrorMessage);
+      console.error('Message: ', parsedResults?.ErrorMessage || 'No results');
       return { success: false, error: 'File parse failed' };
     }
     return { success: true, text: String(parsedResults.ParsedText) };
