@@ -12,7 +12,6 @@ import { detectCardId } from '@lib/detectCardId';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is RegisterUploadServiceInput {
-  if (typeof body !== 'object') return false;
   if (typeof body['base64Image'] !== 'string') return false;
   if (typeof body['SVCRegisterToken'] !== 'string') return false;
   if (typeof body['EACRegisterToken'] !== 'string') return false;
