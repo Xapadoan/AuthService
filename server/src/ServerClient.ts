@@ -5,6 +5,8 @@ import {
   RegisterInitServiceOutput,
   RedisClient,
   handleResponse,
+  RegisterUploadServerInput,
+  Failable,
 } from 'shared';
 
 const {
@@ -18,7 +20,7 @@ interface Config {
   apiKey: string;
 }
 
-export default class ServerClient {
+export class ServerClient {
   readonly integration: Integration;
   readonly url: string;
   readonly apiKey: string;
@@ -30,17 +32,48 @@ export default class ServerClient {
     this.url = url;
   }
 
+  public async onRegisterUpload({
+    EACRegisterToken,
+    apiKey,
+  }: RegisterUploadServerInput) {
+    return this.replaceTmp(`register:${EACRegisterToken}`, apiKey);
+  }
+
+  private async replaceTmp(key: string, value: string): Promise<Failable> {
+    const pendingValue = await this.redis.get(key);
+    if (pendingValue !== 'pending')
+      return { success: false, error: 'No pending value' };
+    await this.redis.set(key, value, 600);
+    return { success: true };
+  }
+
+  public async registerSetupSession(EACRegisterToken: string) {
+    return this.setupSession(`register:${EACRegisterToken}`);
+  }
+
+  private async setupSession(
+    key: string
+  ): Promise<Failable<{ sessionId: string; expiresIn: number }>> {
+    const apiKey = await this.redis.get(key);
+    if (!apiKey) {
+      return { success: false, error: 'Not found' };
+    }
+    const sessionId = uuid();
+    await this.redis.set(`session:${sessionId}`, apiKey, 60 * 24 * 3600);
+    return { success: true, sessionId, expiresIn: 60 * 24 * 3600 };
+  }
+
   public async initRegister({ email }: RegisterInitServiceInput) {
     try {
       const EACRegisterToken = uuid();
-      await this.redis.set(EACRegisterToken, 'pending', 60 * 10);
+      await this.redis.set(`register:${EACRegisterToken}`, 'pending', 60 * 10);
       const { SVCRegisterToken }: RegisterInitServiceOutput =
         await this.fetchService('register', {
           method: 'POST',
           body: JSON.stringify({ email }),
         });
       return {
-        uploadUrl: `${this.url}/register`,
+        uploadUrl: `${AUTHSERVICE_SERVICE_HOST}/upload/register`,
         SVCRegisterToken,
         EACRegisterToken,
       };

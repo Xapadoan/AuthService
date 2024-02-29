@@ -10,7 +10,7 @@ const port = process.env.PORT;
 async function initServer() {
   await initDb();
   const app = express();
-  app.use(express.json({ type: 'application/json' }));
+  app.use(express.json({ type: 'application/json', limit: '1mb' }));
   app.use(router);
   app.listen(port, () => console.log('AuthService Ready on port ', port));
 }

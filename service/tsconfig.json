@@ -4,7 +4,6 @@
     "rootDirs": ["service/src", "shared"],
     "outDir": "dist",
     "paths": {
-      "@shared/*": ["./shared/src/*"],
       "@lib/*": ["./service/src/lib/*"],
       "@data": ["./service/src/data"],
       "@controllers/*": ["./service/src/controllers/*"],

@@ -17,7 +17,10 @@
     </form>
     <div id="picture-frame"></div>
     <script async defer type="module">
-      import { initRegister } from "../src";
+      import { initRegister, uploadRegister, finishRegister } from "../src";
+
+      let initRegisterResult;
+      let uploadRegisterResult;
 
       const width = 640;
       let height = 360;
@@ -27,9 +30,15 @@
       const captureButton = document.getElementById('capture-button');
       const sendButton = document.getElementById('send-button');
 
-      function sendPicture() {
+      async function sendPicture() {
         const data = canvas.toDataURL('image/png');
         console.log('Data: ', data);
+        await uploadRegister(initRegisterResult.uploadUrl, {
+          EACRegisterToken: initRegisterResult.EACRegisterToken,
+          SVCRegisterToken: initRegisterResult.SVCRegisterToken,
+          base64Image: data
+        });
+        await finishRegister('http://localhost:8081/auth/register/end', initRegisterResult.EACRegisterToken);
       }
 
       function takePicture() {
@@ -57,7 +66,10 @@
       emailSubmitButton.onclick = (e) => {
         e.preventDefault();
         const emailInput = document.getElementById('email-input');
-        const initBody = initRegister('http://localhost:8081/auth', emailInput.value).catch(console.error);
+        initRegister('http://localhost:8081/auth/register/init', emailInput.value).then((res) => {
+          console.log('Init Register Done: ', res);
+          initRegisterResult = res;
+        }).catch(console.error);
         navigator.mediaDevices.getUserMedia({
           video: {
             ideal: {

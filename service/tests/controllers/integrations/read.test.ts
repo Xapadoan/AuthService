@@ -2,7 +2,7 @@ import request from 'supertest';
 import express, { Request, NextFunction } from 'express';
 import '@lib/http';
 import { read } from '@controllers/integrations/read';
-import { Integration } from '@shared/types';
+import { Integration } from 'shared';
 
 const validIntegration: Integration & { id: number | bigint } = {
   id: 1,

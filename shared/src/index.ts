@@ -5,6 +5,10 @@ import {
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
   RegisterInitServerOutput,
+  RegisterUploadServiceInput,
+  RegisterUploadServiceOutput,
+  RegisterUploadServerInput,
+  Failable,
 } from './types';
 
 export {
@@ -15,4 +19,8 @@ export {
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
   RegisterInitServerOutput,
+  RegisterUploadServiceInput,
+  RegisterUploadServiceOutput,
+  RegisterUploadServerInput,
+  Failable,
 };

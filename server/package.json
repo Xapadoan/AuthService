@@ -2,7 +2,7 @@
   "name": "authservice-server",
   "version": "0.0.1",
   "description": "The lib that should run on the server",
-  "main": "src/ServerClient.ts",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "test": "jest"

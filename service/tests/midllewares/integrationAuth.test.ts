@@ -1,4 +1,4 @@
-import { Integration } from '@shared/types';
+import { Integration } from 'shared';
 
 type KnexMockReturn = Promise<Pick<Integration, 'id' | 'apiKey'> | undefined>;
 

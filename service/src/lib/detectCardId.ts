@@ -1,24 +1,7 @@
 import 'dotenv/config';
-import { createReadStream } from 'node:fs';
+import { Failable, handleResponse } from 'shared';
 
-// const { OCRSPACE_URL, OCRSPACE_API_KEY } = process.env;
-
-async function toBase64(path: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const readStream = createReadStream(path, 'base64');
-    let string = '';
-    readStream.on('data', (data: string) => {
-      string += data;
-    });
-    readStream.once('end', () => {
-      readStream.close();
-      resolve(string);
-    });
-    readStream.on('error', (err) => {
-      reject(err);
-    });
-  });
-}
+const { OCRSPACE_URL, OCRSPACE_API_KEY } = process.env;
 
 interface OCRSpaceResponse {
   IsErroredOnProcessing: boolean;
@@ -32,33 +15,30 @@ interface OCRSpaceResponse {
   }>;
 }
 
-export async function extractFileText(
+export async function textDetection(
   base64Image: string
-): Promise<string | undefined> {
+): Promise<Failable<{ text: string }>> {
   try {
     const data = new FormData();
     data.append('base64Image', base64Image);
     data.append('language', 'fre');
-    data.append('filetype', 'JPG');
+    data.append('filetype', 'PNG');
     data.append('OCREngine', '2');
     data.append('isTable', 'true');
-    const textDetection: OCRSpaceResponse = await fetch(
-      'https://api.ocr.space/parse/image',
-      {
-        method: 'POST',
-        headers: {
-          apikey: 'K88966559588957',
-        },
-        body: data,
-      }
-    ).then((res) => res.json());
+    const textDetection = await fetch(String(OCRSPACE_URL), {
+      method: 'POST',
+      headers: {
+        apikey: String(OCRSPACE_API_KEY),
+      },
+      body: data,
+    }).then((res) => handleResponse<OCRSpaceResponse>(res));
     if (textDetection.OCRExitCode !== 1) {
       console.error(
         'Text detection failed with code ',
         textDetection.OCRExitCode
       );
       console.error('Message: ', textDetection.ErrorMessage);
-      return;
+      return { success: false, error: 'Text detection failed' };
     }
     const parsedResults = textDetection.ParsedResults?.[0];
     if (!parsedResults || parsedResults.FileParseExitCode !== 1) {
@@ -67,13 +47,12 @@ export async function extractFileText(
         parsedResults.FileParseExitCode
       );
       console.error('Message: ', parsedResults.ErrorMessage);
+      return { success: false, error: 'File parse failed' };
     }
-    console.log(typeof parsedResults.ParsedText);
-    console.log(parsedResults.ParsedText);
-    // console.log(Object.keys(parsedResults));
-    return String(parsedResults.ParsedText);
+    return { success: true, text: String(parsedResults.ParsedText) };
   } catch (error) {
-    console.log(error);
+    console.error('Text detection unexpected error: ', error);
+    return { success: false, error: 'Unexpected error' };
   }
 }
 
@@ -146,17 +125,24 @@ function getCardInfos(text: string): Partial<CardInfos> {
   }
   infos.checksum1 = lines[lines.length - 2];
   infos.checksum2 = lines[lines.length - 1];
+  if (!infos.number && infos.checksum2) {
+    const numberMatchs = infos.checksum2.match(/^([\d]{12})/);
+    if (numberMatchs) {
+      infos.number = numberMatchs[1];
+    }
+  }
   console.log(infos);
   return infos;
 }
 
-(async () => {
-  const b64 = await toBase64('./service/src/lib/test2.jpg').catch(
-    console.error
-  );
-  if (!b64) return;
-  console.log(b64.slice(1, 20));
-  const text = await extractFileText(`data:image/jpg;base64,${b64}`);
-  if (!text) return;
-  getCardInfos(text);
-})();
+export async function detectCardId(
+  base64Image: string
+): Promise<Failable<{ id: string }>> {
+  const rawText = await textDetection(base64Image);
+  if (!rawText.success) return rawText;
+  const infos = getCardInfos(rawText.text);
+  if (!infos.number) {
+    return { success: false, error: 'Could not get the card id' };
+  }
+  return { success: true, id: infos.number };
+}

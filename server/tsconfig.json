@@ -4,7 +4,6 @@
     "rootDirs": ["server/src", "shared"],
     "outDir": "dist",
     "paths": {
-      "@shared/*": ["./shared/src/*"],
       "@lib/*": ["./server/src/lib/*"]
     }
   },

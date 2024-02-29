@@ -20,8 +20,8 @@ const mockFetch = jest.fn().mockResolvedValue({
 global.fetch = mockFetch;
 jest.mock('@shared/lib/RedisClient');
 
-import ServerClient from '../src/ServerClient';
-import { expectResolvedValueMatch } from './utils';
+import { ServerClient } from '../src/ServerClient';
+import { expectResolvedValueEqual, expectResolvedValueMatch } from './utils';
 import { RedisClient } from 'shared';
 
 const {
@@ -118,7 +118,11 @@ describe('ServerClient Init Register', () => {
     const result = await client.initRegister({ email: 'asd@mail.com' });
     expect(mockUuid).toHaveBeenCalled();
     expect(mockUuid).toHaveReturnedWith('mocked-uuid');
-    expect(setSpy).toHaveBeenCalledWith('mocked-uuid', 'pending', 60 * 10);
+    expect(setSpy).toHaveBeenCalledWith(
+      'register:mocked-uuid',
+      'pending',
+      60 * 10
+    );
     expect(mockFetch).toHaveBeenCalledWith(`${client.url}/register`, {
       method: 'POST',
       headers: {
@@ -129,7 +133,7 @@ describe('ServerClient Init Register', () => {
     });
     expectResolvedValueMatch(mockFetchJson, { SVCRegisterToken: 'token' });
     expect(result).toMatchObject({
-      uploadUrl: `${client.url}/register`,
+      uploadUrl: `${AUTHSERVICE_SERVICE_HOST}/upload/register`,
       EACRegisterToken: 'mocked-uuid',
       SVCRegisterToken: 'token',
     });
@@ -156,5 +160,103 @@ describe('ServerClient Init Register', () => {
     results.forEach((result) => {
       expect(result).toBeUndefined();
     });
+  });
+});
+
+describe('ServerClient On Register Upload', () => {
+  const setSpy = jest.spyOn(RedisClient.prototype, 'set');
+  const getSpy = jest.spyOn(RedisClient.prototype, 'get');
+  let client: ServerClient;
+
+  beforeAll(async () => {
+    client = await ServerClient.init();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.resetModules();
+  });
+
+  it('should replace the existing register value', async () => {
+    getSpy.mockResolvedValueOnce('pending');
+    const result = await client.onRegisterUpload({
+      EACRegisterToken: 'token',
+      apiKey: 'apiKey',
+    });
+    expect(getSpy).toHaveBeenCalledWith('register:token');
+    expectResolvedValueEqual(getSpy, 'pending');
+    expect(setSpy).toHaveBeenCalledWith('register:token', 'apiKey', 600);
+    expect(result).toMatchObject({ success: true });
+  });
+
+  it('should not replace if existing value does not exist', async () => {
+    getSpy.mockResolvedValueOnce(null);
+    const result = await client.onRegisterUpload({
+      EACRegisterToken: 'token',
+      apiKey: 'apiKey',
+    });
+    expect(getSpy).toHaveBeenCalledWith('register:token');
+    expectResolvedValueEqual(getSpy, null);
+    expect(setSpy).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ success: false });
+  });
+
+  it('should not replace if existing value is not pending', async () => {
+    getSpy.mockResolvedValueOnce('not pending');
+    const result = await client.onRegisterUpload({
+      EACRegisterToken: 'token',
+      apiKey: 'apiKey',
+    });
+    expect(getSpy).toHaveBeenCalledWith('register:token');
+    expectResolvedValueEqual(getSpy, 'not pending');
+    expect(setSpy).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ success: false });
+  });
+});
+
+describe('ServerClient Register Session Setup', () => {
+  const setSpy = jest.spyOn(RedisClient.prototype, 'set');
+  const getSpy = jest.spyOn(RedisClient.prototype, 'get');
+  let client: ServerClient;
+
+  beforeAll(async () => {
+    client = await ServerClient.init();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.resetModules();
+  });
+
+  it('should generate a session id', async () => {
+    getSpy.mockResolvedValueOnce('apiKey');
+    const result = await client.registerSetupSession('token');
+    expect(getSpy).toHaveBeenCalledWith('register:token');
+    expectResolvedValueEqual(getSpy, 'apiKey');
+    expect(mockUuid).toHaveBeenCalled();
+    expect(mockUuid).toHaveReturnedWith('mocked-uuid');
+    expect(setSpy).toHaveBeenCalledWith(
+      'session:mocked-uuid',
+      'apiKey',
+      60 * 24 * 3600
+    );
+    expect(result).toMatchObject({
+      success: true,
+      sessionId: 'mocked-uuid',
+      expiresIn: 60 * 24 * 3600,
+    });
+  });
+
+  it('should not generate a session when apiKey is not found', async () => {
+    getSpy.mockResolvedValueOnce(null);
+    const result = await client.registerSetupSession('token');
+    expect(getSpy).toHaveBeenCalledWith('register:token');
+    expectResolvedValueEqual(getSpy, null);
+    expect(setSpy).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ success: false });
   });
 });
