@@ -60,6 +60,7 @@ export class ServerClient {
     }
     const sessionId = uuid();
     await this.redis.set(`session:${sessionId}`, apiKey, 60 * 24 * 3600);
+    await this.redis.del(key);
     return { success: true, sessionId, expiresIn: 60 * 24 * 3600 };
   }
 

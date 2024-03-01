@@ -109,11 +109,22 @@ describe('Register Upload Controller', () => {
 
   it('should dot many things when all is good', async () => {
     const response = await request(app).post('/').send(validPayload);
+    expectResolvedValueMatch(mockFirst, validUser);
     expectResolvedValueMatch(mockDetectCardId, {
       success: true,
       id: validCardId,
     });
     expect(mockUpdate).toHaveBeenCalledWith({ cardId: validCardId });
+    expect(mockUuid).toHaveBeenCalled();
+    expect(mockUuid).toHaveReturnedWith('uuid-mocked');
+    expect(mockFetch.mock.lastCall[0]).toEqual(validUser.registerWebhook);
+    expect(mockFetch.mock.lastCall[1]).toMatchObject({
+      method: 'POST',
+      body: JSON.stringify({
+        apiKey: 'uuid-mocked',
+        EACRegisterToken: validPayload.EACRegisterToken,
+      }),
+    });
     expect(mockDel).toHaveBeenCalled();
     expect(response.ok);
   });

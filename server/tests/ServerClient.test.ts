@@ -219,6 +219,7 @@ describe('ServerClient On Register Upload', () => {
 describe('ServerClient Register Session Setup', () => {
   const setSpy = jest.spyOn(RedisClient.prototype, 'set');
   const getSpy = jest.spyOn(RedisClient.prototype, 'get');
+  const delSpy = jest.spyOn(RedisClient.prototype, 'del');
   let client: ServerClient;
 
   beforeAll(async () => {
@@ -244,6 +245,7 @@ describe('ServerClient Register Session Setup', () => {
       'apiKey',
       60 * 24 * 3600
     );
+    expect(delSpy).toHaveBeenCalledWith('register:token');
     expect(result).toMatchObject({
       success: true,
       sessionId: 'mocked-uuid',
