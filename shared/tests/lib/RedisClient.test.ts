@@ -1,10 +1,12 @@
 const mockGet = jest.fn();
 const mockSet = jest.fn();
+const mockDel = jest.fn();
 const mockConnect = jest.fn();
 const mockQuit = jest.fn();
 const mockCreateClient = jest.fn(() => ({
   set: mockSet,
   get: mockGet,
+  del: mockDel,
   connect: mockConnect,
   quit: mockQuit,
 }));
@@ -28,6 +30,8 @@ describe('Redis Client', () => {
     expect(mockSet).toHaveBeenCalledWith('test:key', 'value', { EX: 60 });
     await client.get('key');
     expect(mockGet).toHaveBeenCalledWith('test:key');
+    await client.del('key');
+    expect(mockDel).toHaveBeenCalledWith('test:key');
   });
 
   it('should be able to close itself', async () => {
