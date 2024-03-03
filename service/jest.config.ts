@@ -16,7 +16,7 @@ const config: Config = {
   // cacheDirectory: "/tmp/jest_rs",
 
   // Automatically clear mock calls, instances, contexts and results before every test
-  clearMocks: true,
+  clearMocks: false,
 
   // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
@@ -89,7 +89,6 @@ const config: Config = {
     '^@middlewares/(.*)$': '<rootDir>/src/middlewares/$1',
     '^@controllers/(.*)$': '<rootDir>/src/controllers/$1',
     '^@lib/(.*)$': '<rootDir>/src/lib/$1',
-    '^@shared/(.*)$': '<rootDir>/../shared/src/$1',
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader

@@ -1,4 +1,15 @@
 import { ServerClient } from './ServerClient';
-import { HTTPError, Failable, RegisterUploadServerInput } from 'shared';
+import {
+  HTTPError,
+  Failable,
+  RegisterUploadServerInput,
+  RestoreUploadServerInput,
+} from 'authservice-shared';
 
-export { ServerClient, HTTPError, Failable, RegisterUploadServerInput };
+export {
+  ServerClient,
+  HTTPError,
+  Failable,
+  RegisterUploadServerInput,
+  RestoreUploadServerInput,
+};

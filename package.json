@@ -11,9 +11,6 @@
   "scripts": {
     "test:unit": "npm -w shared run test && npm -w service run test && npm -w server run test"
   },
-  "dependencies": {
-    "shared": "file:shared"
-  },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.19",
@@ -32,6 +29,7 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3",
     "url": "^0.11.3",
     "util": "^0.12.5"
   },

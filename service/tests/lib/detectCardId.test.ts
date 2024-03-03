@@ -79,16 +79,27 @@ const failedFileParsing = {
 };
 
 describe('Detect Card Id', () => {
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.resetModules();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('should return an id when all is well', async () => {
     mockFetchJson.mockResolvedValueOnce(highQualityDetection);
     const result = await detectCardId('imageAsBase64');
-    expectResolvedValueMatch(mockFetchJson, highQualityDetection);
+    expect(mockFetch).toHaveBeenCalled();
+    expectResolvedValueMatch(mockFetch, { ok: true, json: mockFetchJson });
+    expect(mockFetchJson).toHaveBeenCalled();
+    // expectResolvedValueMatch(mockFetchJson, highQualityDetection);
     expect(result).toMatchObject({ success: true, id: cardNumber });
   });
 
   it('should return when text detection fails', async () => {
     mockFetchJson.mockResolvedValueOnce(failedTextDetection);
     const result = await detectCardId('imageAsBase64');
+    expect(mockFetch).toHaveBeenCalled();
     expectResolvedValueMatch(mockFetchJson, failedTextDetection);
     expect(result).toMatchObject({ success: false });
   });

@@ -1,12 +1,26 @@
 import {
+  Failable,
+  handleResponse,
   RegisterInitServerOutput,
   RegisterUploadServiceInput,
-  RegisterUploadServiceOutput,
-  handleResponse,
-} from 'shared';
+  RestoreInitServerOutput,
+  RestoreUploadServiceInput,
+} from 'authservice-shared';
 
 export async function initRegister(input: string | URL, email: string) {
   const body: RegisterInitServerOutput = await fetch(input, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  }).then((res) => handleResponse(res));
+
+  return body;
+}
+
+export async function initRestore(input: string | URL, email: string) {
+  const body: RestoreInitServerOutput = await fetch(input, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -22,14 +36,27 @@ export async function uploadRegister(
   payload: RegisterUploadServiceInput
 ) {
   const body = JSON.stringify(payload);
-  console.log('Lenght: ', body.length / 1024);
   await fetch(input, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body,
-  }).then((res) => handleResponse<RegisterUploadServiceOutput>(res));
+  }).then((res) => handleResponse<Failable>(res));
+}
+
+export async function uploadRestore(
+  input: string | URL,
+  payload: RestoreUploadServiceInput
+) {
+  const body = JSON.stringify(payload);
+  await fetch(input, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then((res) => handleResponse<Failable>(res));
 }
 
 export async function finishRegister(
@@ -43,6 +70,21 @@ export async function finishRegister(
     },
     body: JSON.stringify({
       EACRegisterToken,
+    }),
+  });
+}
+
+export async function finishRestore(
+  input: string | URL,
+  EACRestoreToken: string
+) {
+  await fetch(input, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      EACRestoreToken,
     }),
   });
 }

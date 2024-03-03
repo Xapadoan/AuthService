@@ -6,9 +6,13 @@ import {
   RegisterInitServiceOutput,
   RegisterInitServerOutput,
   RegisterUploadServiceInput,
-  RegisterUploadServiceOutput,
   RegisterUploadServerInput,
   Failable,
+  RestoreInitServiceInput,
+  RestoreInitServiceOutput,
+  RestoreInitServerOutput,
+  RestoreUploadServiceInput,
+  RestoreUploadServerInput,
 } from './types';
 
 export {
@@ -20,7 +24,11 @@ export {
   RegisterInitServiceOutput,
   RegisterInitServerOutput,
   RegisterUploadServiceInput,
-  RegisterUploadServiceOutput,
   RegisterUploadServerInput,
   Failable,
+  RestoreInitServiceInput,
+  RestoreInitServiceOutput,
+  RestoreInitServerOutput,
+  RestoreUploadServiceInput,
+  RestoreUploadServerInput,
 };

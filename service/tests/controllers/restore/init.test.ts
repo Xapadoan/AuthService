@@ -1,14 +1,24 @@
+import {
+  validUser,
+  validIntegration,
+  expectResolvedValueMatch,
+  expectResolvedValueEqual,
+} from '../../utils';
 const mockSet = jest.fn();
 jest.mock('@lib/redisClient', () => ({ redisClient: { set: mockSet } }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
 jest.mock('uuid', () => ({ v4: mockUuid }));
-const mockInsert = jest.fn().mockResolvedValue(1);
-const mockKnex = jest.fn(() => ({ insert: mockInsert }));
+const mockWhere = jest.fn().mockReturnThis();
+const mockFirst = jest.fn().mockResolvedValue(validUser);
+const mockKnex = jest.fn(() => ({
+  select: jest.fn().mockReturnThis(),
+  where: mockWhere,
+  first: mockFirst,
+}));
 jest.mock('knex', () => jest.fn(() => mockKnex));
 
-import { init } from '@controllers/register/init';
+import { init } from '@controllers/restore/init';
 import express, { NextFunction, Request } from 'express';
-import { validIntegration, expectResolvedValueEqual } from '../../utils';
 import request from 'supertest';
 import '@lib/http';
 
@@ -17,7 +27,7 @@ const mockAuthMiddleware = jest.fn((req: Request, _res, next: NextFunction) => {
   return next();
 });
 
-describe('Register Init Controller', () => {
+describe('Restore Init Controller', () => {
   const app = express();
   beforeAll(() => {
     app.use(express.json({ type: 'application/json' }));
@@ -36,7 +46,7 @@ describe('Register Init Controller', () => {
     mockAuthMiddleware.mockImplementationOnce((_res, _req, next) => next());
     const response = await request(app).post('/');
     expect(response.unauthorized);
-    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockKnex).not.toHaveBeenCalled();
   });
 
   it('should return 400 if body is not correctly set', async () => {
@@ -49,14 +59,54 @@ describe('Register Init Controller', () => {
     responses.forEach((response) => {
       expect(response.badRequest);
     });
-    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockKnex).not.toHaveBeenCalled();
+  });
+
+  it('should return 404 if user does not exist', async () => {
+    mockAuthMiddleware.mockImplementationOnce(
+      (req: Request, _res, next: NextFunction) => {
+        req.integration = { ...validIntegration, id: 42 };
+        return next();
+      }
+    );
+    mockFirst.mockResolvedValueOnce(undefined);
+    const responses = await Promise.all([
+      request(app).post('/').send({ email: validUser.email }),
+      request(app).post('/').send({ email: validUser.email }),
+    ]);
+    expectResolvedValueEqual(mockFirst, undefined);
+    responses.forEach((response) => {
+      expect(response.notFound);
+    });
+  });
+
+  it('should do many stuff when ok', async () => {
+    const response = await request(app).post('/').send({ email: 'an email' });
+    expect(mockAuthMiddleware).toHaveBeenCalled();
+    expect(mockKnex).toHaveBeenCalled();
+    expect(mockKnex).toHaveBeenCalledWith('users');
+    expect(mockWhere).toHaveBeenCalledWith({
+      integrationId: validIntegration.id,
+      email: 'an email',
+    });
+    expectResolvedValueMatch(mockFirst, validUser);
+    expect(mockUuid).toHaveBeenCalled();
+    expect(mockUuid).toHaveReturnedWith('uuid-mocked');
+    expect(mockSet).toHaveBeenCalled();
+    expect(mockSet).toHaveBeenCalledWith(
+      'restore:uuid-mocked',
+      validUser.id,
+      600
+    );
+    expect(response.ok);
+    expect(response.body).toMatchObject({ SVCRestoreToken: 'uuid-mocked' });
   });
 
   it('should return 500 if anything throws', async () => {
     mockSet.mockImplementationOnce(() => {
       throw new Error('Intentional set error');
     });
-    mockInsert.mockImplementationOnce(() => {
+    mockWhere.mockImplementationOnce(() => {
       throw new Error('Intentional insert error');
     });
     const responses = await Promise.all([
@@ -66,25 +116,5 @@ describe('Register Init Controller', () => {
     responses.forEach((response) => {
       expect(response.serverError);
     });
-  });
-
-  it('should do many stuff when ok', async () => {
-    const response = await request(app).post('/').send({ email: 'an email' });
-    expect(mockAuthMiddleware).toHaveBeenCalled();
-    expect(mockKnex).toHaveBeenCalled();
-    expect(mockKnex).toHaveBeenCalledWith('users');
-    expect(mockInsert).toHaveBeenCalled();
-    expect(mockInsert).toHaveBeenCalledWith({
-      integrationId: validIntegration.id,
-      email: 'an email',
-      cardId: 'pending',
-    });
-    expect(mockUuid).toHaveBeenCalled();
-    expect(mockUuid).toHaveReturnedWith('uuid-mocked');
-    expectResolvedValueEqual(mockInsert, 1);
-    expect(mockSet).toHaveBeenCalled();
-    expect(mockSet).toHaveBeenCalledWith('uuid-mocked', '1', 600);
-    expect(response.status).toEqual(201);
-    expect(response.body).toMatchObject({ SVCRegisterToken: 'uuid-mocked' });
   });
 });
