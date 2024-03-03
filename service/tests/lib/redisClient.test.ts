@@ -1,15 +1,22 @@
-import { RedisClient } from 'shared';
+jest.mock('authservice-shared');
+
+import { RedisClient } from 'authservice-shared';
+
+const MockRedisClient = jest.mocked(RedisClient);
+
 import { redisClient } from '@lib/redisClient';
 
 describe('Redis Client', () => {
-  afterAll(async () => {
-    await redisClient.close();
-  });
-  it('should be a RedisClient', () => {
-    expect(redisClient).toBeInstanceOf(RedisClient);
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.resetModules();
   });
 
-  it('should have correct prefix', async () => {
-    expect(redisClient.prefix).toEqual('authservice-service');
+  it('should be a RedisClient', () => {
+    expect(redisClient).toBeInstanceOf(MockRedisClient);
+    expect(MockRedisClient).toHaveBeenCalled();
+    expect(MockRedisClient).toHaveBeenCalledWith({
+      prefix: 'authservice-service',
+    });
   });
 });

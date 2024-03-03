@@ -1,13 +1,16 @@
 import { v4 as uuid } from 'uuid';
 import {
+  Failable,
+  handleResponse,
   Integration,
+  RedisClient,
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
-  RedisClient,
-  handleResponse,
   RegisterUploadServerInput,
-  Failable,
-} from 'shared';
+  RestoreInitServiceInput,
+  RestoreInitServiceOutput,
+  RestoreUploadServerInput,
+} from 'authservice-shared';
 
 const {
   AUTHSERVICE_INTEGRATION_ID,
@@ -25,6 +28,8 @@ export class ServerClient {
   readonly url: string;
   readonly apiKey: string;
   private redis = new RedisClient({ prefix: 'authservice-server' });
+  readonly sessionDuration = 60 * 24 * 3600;
+  readonly tmpStorageDuration = 10 * 60;
 
   private constructor(integration: Integration, { url, apiKey }: Config) {
     this.integration = integration;
@@ -39,16 +44,27 @@ export class ServerClient {
     return this.replaceTmp(`register:${EACRegisterToken}`, apiKey);
   }
 
+  public async onRestoreUpload({
+    EACRestoreToken,
+    apiKey,
+  }: RestoreUploadServerInput) {
+    return this.replaceTmp(`restore:${EACRestoreToken}`, apiKey);
+  }
+
   private async replaceTmp(key: string, value: string): Promise<Failable> {
     const pendingValue = await this.redis.get(key);
     if (pendingValue !== 'pending')
       return { success: false, error: 'No pending value' };
-    await this.redis.set(key, value, 600);
+    await this.redis.set(key, value, this.tmpStorageDuration);
     return { success: true };
   }
 
   public async registerSetupSession(EACRegisterToken: string) {
     return this.setupSession(`register:${EACRegisterToken}`);
+  }
+
+  public async restoreSetupSession(EACRestoreToken: string) {
+    return this.setupSession(`restore:${EACRestoreToken}`);
   }
 
   private async setupSession(
@@ -59,15 +75,19 @@ export class ServerClient {
       return { success: false, error: 'Not found' };
     }
     const sessionId = uuid();
-    await this.redis.set(`session:${sessionId}`, apiKey, 60 * 24 * 3600);
+    await this.redis.set(`session:${sessionId}`, apiKey, this.sessionDuration);
     await this.redis.del(key);
-    return { success: true, sessionId, expiresIn: 60 * 24 * 3600 };
+    return { success: true, sessionId, expiresIn: this.sessionDuration };
   }
 
   public async initRegister({ email }: RegisterInitServiceInput) {
     try {
       const EACRegisterToken = uuid();
-      await this.redis.set(`register:${EACRegisterToken}`, 'pending', 60 * 10);
+      await this.redis.set(
+        `register:${EACRegisterToken}`,
+        'pending',
+        this.tmpStorageDuration
+      );
       const { SVCRegisterToken }: RegisterInitServiceOutput =
         await this.fetchService('register', {
           method: 'POST',
@@ -77,6 +97,29 @@ export class ServerClient {
         uploadUrl: `${AUTHSERVICE_SERVICE_HOST}/upload/register`,
         SVCRegisterToken,
         EACRegisterToken,
+      };
+    } catch (error) {
+      console.error('Init Register Error: ', error);
+    }
+  }
+
+  public async initRestore({ email }: RestoreInitServiceInput) {
+    try {
+      const EACRestoreToken = uuid();
+      await this.redis.set(
+        `restore:${EACRestoreToken}`,
+        'pending',
+        this.tmpStorageDuration
+      );
+      const { SVCRestoreToken }: RestoreInitServiceOutput =
+        await this.fetchService('restore', {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        });
+      return {
+        uploadUrl: `${AUTHSERVICE_SERVICE_HOST}/upload/restore`,
+        SVCRestoreToken,
+        EACRestoreToken,
       };
     } catch (error) {
       console.error('Init Register Error: ', error);
@@ -99,7 +142,10 @@ export class ServerClient {
     return new ServerClient(integration, { url: baseUrl, apiKey: baseApiKey });
   }
 
-  private async fetchService<T>(endpoint: 'register', init?: RequestInit) {
+  private async fetchService<T>(
+    endpoint: 'register' | 'restore',
+    init?: RequestInit
+  ) {
     return fetch(`${this.url}/${endpoint}`, {
       ...init,
       headers: {

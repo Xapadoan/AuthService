@@ -10,21 +10,18 @@ jest.mock('@lib/redisClient', () => ({
 }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
 jest.mock('uuid', () => ({ v4: mockUuid }));
-const mockUpdate = jest.fn();
 const mockWhere = jest.fn();
 const mockFirst = jest.fn().mockResolvedValue(validUser);
 const mockKnex = jest.fn(() => ({
   innerJoin: jest.fn().mockReturnThis(),
   select: jest.fn().mockReturnThis(),
-  update: mockUpdate.mockReturnThis(),
   where: mockWhere.mockReturnThis(),
   first: mockFirst,
 }));
 jest.mock('knex', () => jest.fn(() => mockKnex));
-const validCardId = '123123123123';
 const mockDetectCardId = jest
   .fn()
-  .mockResolvedValue({ success: true, id: validCardId });
+  .mockResolvedValue({ success: true, id: validUser.cardId });
 jest.mock('@lib/detectCardId', () => ({ detectCardId: mockDetectCardId }));
 const mockFetchJson = jest.fn();
 const mockFetch = jest.fn().mockResolvedValue({
@@ -33,22 +30,22 @@ const mockFetch = jest.fn().mockResolvedValue({
 });
 global.fetch = mockFetch;
 
-import { registerUpload } from '@controllers/upload/register';
+import { restoreUpload } from '@controllers/upload/restore';
 import express from 'express';
 import request from 'supertest';
 import '@lib/http';
 
 const validPayload = {
   base64Image: 'base64Image',
-  SVCRegisterToken: 'SVCRegisterToken',
-  EACRegisterToken: 'EACRegisterToken',
+  SVCRestoreToken: 'SVCRestoreToken',
+  EACRestoreToken: 'EACRestoreToken',
 };
 
-describe('Register Upload Controller', () => {
+describe('Restore Upload Controller', () => {
   const app = express();
   beforeAll(() => {
     app.use(express.json({ type: 'application/json' }));
-    app.post('/', registerUpload);
+    app.post('/', restoreUpload);
   });
   afterAll(() => {
     jest.restoreAllMocks();
@@ -65,7 +62,7 @@ describe('Register Upload Controller', () => {
       request(app).post('/').send({ base64Image: 'base64Image' }),
       request(app).post('/').send({
         base64Image: 'base64Image',
-        SVCRegisterToken: 'SVCRegisterToken',
+        SVCRestoreToken: 'SVCRestoreToken',
       }),
     ]);
     responses.forEach((response) => {
@@ -74,10 +71,12 @@ describe('Register Upload Controller', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('should return 404 when SVCRegisterToken not found', async () => {
+  it('should return 404 when SVCRestoreToken not found', async () => {
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
-    expect(mockGet).toHaveBeenCalledWith(validPayload.SVCRegisterToken);
+    expect(mockGet).toHaveBeenCalledWith(
+      `restore:${validPayload.SVCRestoreToken}`
+    );
     expectResolvedValueEqual(mockGet, null);
     expect(response.notFound);
   });
@@ -102,25 +101,38 @@ describe('Register Upload Controller', () => {
     expect(response.notAcceptable);
   });
 
+  it('should return 403 when detected card id is different than the one stored', async () => {
+    mockDetectCardId.mockResolvedValueOnce({ success: true, id: 'not valid' });
+    const response = await request(app).post('/').send(validPayload);
+    expectResolvedValueEqual(mockFirst, validUser);
+    expect(mockDetectCardId).toHaveBeenCalledWith(validPayload.base64Image);
+    expectResolvedValueMatch(mockDetectCardId, {
+      success: true,
+      id: 'not valid',
+    });
+    expect(response.forbidden);
+  });
+
   it('should dot many things when all is good', async () => {
     const response = await request(app).post('/').send(validPayload);
     expectResolvedValueMatch(mockFirst, validUser);
     expectResolvedValueMatch(mockDetectCardId, {
       success: true,
-      id: validCardId,
+      id: validUser.cardId,
     });
-    expect(mockUpdate).toHaveBeenCalledWith({ cardId: validCardId });
     expect(mockUuid).toHaveBeenCalled();
     expect(mockUuid).toHaveReturnedWith('uuid-mocked');
-    expect(mockFetch.mock.lastCall[0]).toEqual(validUser.registerWebhook);
+    expect(mockFetch.mock.lastCall[0]).toEqual(validUser.restoreWebhook);
     expect(mockFetch.mock.lastCall[1]).toMatchObject({
       method: 'POST',
       body: JSON.stringify({
+        EACRestoreToken: validPayload.EACRestoreToken,
         apiKey: 'uuid-mocked',
-        EACRegisterToken: validPayload.EACRegisterToken,
       }),
     });
-    expect(mockDel).toHaveBeenCalled();
+    expect(mockDel).toHaveBeenCalledWith(
+      `restore:${validPayload.SVCRestoreToken}`
+    );
     expect(response.ok);
   });
 
@@ -131,7 +143,7 @@ describe('Register Upload Controller', () => {
     mockDel.mockImplementationOnce(() => {
       throw new Error('Intentional set error');
     });
-    mockUpdate.mockImplementationOnce(() => {
+    mockFirst.mockImplementationOnce(() => {
       throw new Error('Intentional insert error');
     });
     const responses = await Promise.all([

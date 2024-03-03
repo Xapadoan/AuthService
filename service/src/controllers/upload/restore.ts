@@ -1,26 +1,26 @@
+import { redisClient } from '@lib/redisClient';
+import { Request, Response } from 'express';
+import { v4 as uuid } from 'uuid';
+import knex from '@data';
+import { User } from '@lib/types';
+import { detectCardId } from '@lib/detectCardId';
 import {
   Failable,
   HTTPError,
   Integration,
-  RegisterUploadServiceInput,
+  RestoreUploadServiceInput,
   handleResponse,
 } from 'shared';
-import { Request, Response } from 'express';
-import { v4 as uuid } from 'uuid';
-import { redisClient } from '@lib/redisClient';
-import knex from '@data';
-import { detectCardId } from '@lib/detectCardId';
-import { User } from '@lib/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function validate(body: any): body is RegisterUploadServiceInput {
+function validate(body: any): body is RestoreUploadServiceInput {
   if (typeof body['base64Image'] !== 'string') return false;
-  if (typeof body['SVCRegisterToken'] !== 'string') return false;
-  if (typeof body['EACRegisterToken'] !== 'string') return false;
+  if (typeof body['SVCRestoreToken'] !== 'string') return false;
+  if (typeof body['EACRestoreToken'] !== 'string') return false;
   return true;
 }
 
-export async function registerUpload(
+export async function restoreUpload(
   req: Request,
   res: Response<HTTPError | Failable>
 ) {
@@ -28,8 +28,8 @@ export async function registerUpload(
     if (!validate(req.body)) {
       return res.status(400).json({ error: 'Bad Body' });
     }
-    const { EACRegisterToken, SVCRegisterToken, base64Image } = req.body;
-    const userId = await redisClient.get(SVCRegisterToken);
+    const { SVCRestoreToken, EACRestoreToken, base64Image } = req.body;
+    const userId = await redisClient.get(`restore:${SVCRestoreToken}`);
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -45,24 +45,26 @@ export async function registerUpload(
     if (!cardIdDetection.success) {
       return res.status(422).json({ error: cardIdDetection.error });
     }
-    await knex('users')
-      .update({ cardId: String(cardIdDetection.id) })
-      .where({ id: userId });
+    console.log('User: ', user.cardId);
+    console.log('Detected: ', cardIdDetection.id);
+    if (user.cardId !== cardIdDetection.id) {
+      return res.status(403).json({ error: 'Wrong card' });
+    }
     const apiKey = uuid();
-    await fetch(user.registerWebhook, {
+    await fetch(user.restoreWebhook, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        EACRestoreToken,
         apiKey,
-        EACRegisterToken,
       }),
     }).then(handleResponse);
-    await redisClient.del(SVCRegisterToken);
+    await redisClient.del(`restore:${SVCRestoreToken}`);
     return res.json({ success: true });
   } catch (error) {
-    console.log('Register upload failed: ', error);
+    console.log('Restore upload failed: ', error);
     return res.status(500).json({ error: 'Unexpected server error' });
   }
 }

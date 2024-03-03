@@ -2,8 +2,11 @@ import { Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import knex from '@data';
 import { redisClient } from '@lib/redisClient';
-import { RegisterInitServiceInput, RegisterInitServiceOutput } from 'shared';
-import { HTTPError } from 'shared';
+import {
+  HTTPError,
+  RegisterInitServiceInput,
+  RegisterInitServiceOutput,
+} from 'shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is RegisterInitServiceInput {

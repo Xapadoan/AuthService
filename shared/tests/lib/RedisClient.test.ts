@@ -17,6 +17,13 @@ jest.mock('redis', () => ({
 import { RedisClient } from '@lib/RedisClient';
 
 describe('Redis Client', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.resetModules();
+  });
   it('should create a redis client', () => {
     const client = new RedisClient({ prefix: 'test' });
     expect(mockCreateClient).toHaveBeenCalled();

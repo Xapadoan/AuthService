@@ -31,11 +31,32 @@ export interface RegisterUploadServiceInput {
   EACRegisterToken: string;
 }
 
-export interface RegisterUploadServiceOutput {
-  success: true;
-}
-
 export interface RegisterUploadServerInput {
   EACRegisterToken: string;
+  apiKey: string;
+}
+
+export interface RestoreInitServiceInput {
+  email: string;
+}
+
+export interface RestoreInitServiceOutput {
+  SVCRestoreToken: string;
+}
+
+export interface RestoreInitServerOutput {
+  SVCRestoreToken: string;
+  EACRestoreToken: string;
+  uploadUrl: string;
+}
+
+export interface RestoreUploadServiceInput {
+  base64Image: string;
+  SVCRestoreToken: string;
+  EACRestoreToken: string;
+}
+
+export interface RestoreUploadServerInput {
+  EACRestoreToken: string;
   apiKey: string;
 }

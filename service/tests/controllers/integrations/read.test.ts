@@ -2,16 +2,7 @@ import request from 'supertest';
 import express, { Request, NextFunction } from 'express';
 import '@lib/http';
 import { read } from '@controllers/integrations/read';
-import { Integration } from 'shared';
-
-const validIntegration: Integration & { id: number | bigint } = {
-  id: 1,
-  apiKey: 'apiKey-1',
-  registerWebhook: 'register-1',
-  restoreWebhook: 'restore-1',
-  resetConfirmationWebhook: 'reset-confirmation-1',
-  resetCredentialsWebhook: 'reset-credentials-1',
-};
+import { validIntegration } from '../../utils';
 
 const mockAuthMiddleware = jest.fn((req: Request, _res, next: NextFunction) => {
   req.integration = validIntegration;

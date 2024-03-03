@@ -1,4 +1,4 @@
-import { handleResponse } from 'shared/src/lib/http';
+import { handleResponse } from '@lib/http';
 
 describe('Handle Response', () => {
   it('should throw when response is not ok', async () => {

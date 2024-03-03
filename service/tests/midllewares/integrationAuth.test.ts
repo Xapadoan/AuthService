@@ -1,18 +1,9 @@
-import { Integration } from 'shared';
-
-type KnexMockReturn = Promise<Pick<Integration, 'id' | 'apiKey'> | undefined>;
-
-const validIntegration = {
-  id: 1,
-  apiKey: 'valid-api-key',
-};
+import { validIntegration } from '../utils';
 
 const mockQueryBuilder = {
   select: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
-  first: jest
-    .fn<KnexMockReturn, unknown[], unknown>()
-    .mockResolvedValue(validIntegration),
+  first: jest.fn().mockResolvedValue(validIntegration),
 };
 
 const mockKnex = jest.fn(() => mockQueryBuilder);

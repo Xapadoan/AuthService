@@ -1,6 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDirs": ["shared/src", "shared/tests"]
+    "rootDirs": ["shared/src", "shared/tests"],
+    "paths": {
+      "@lib/*": ["./shared/src/lib/*"]
+    }
   }
 }
