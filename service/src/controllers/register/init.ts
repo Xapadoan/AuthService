@@ -6,7 +6,7 @@ import {
   HTTPError,
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
-} from 'shared';
+} from 'authservice-shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is RegisterInitServiceInput {

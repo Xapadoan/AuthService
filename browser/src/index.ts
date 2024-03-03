@@ -36,7 +36,6 @@ export async function uploadRegister(
   payload: RegisterUploadServiceInput
 ) {
   const body = JSON.stringify(payload);
-  console.log('Length: ', body.length / 1024);
   await fetch(input, {
     method: 'POST',
     headers: {
@@ -51,7 +50,6 @@ export async function uploadRestore(
   payload: RestoreUploadServiceInput
 ) {
   const body = JSON.stringify(payload);
-  console.log('Length: ', body.length / 1024);
   await fetch(input, {
     method: 'POST',
     headers: {
