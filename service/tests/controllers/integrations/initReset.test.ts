@@ -1,9 +1,4 @@
-import {
-  validUser,
-  validIntegration,
-  expectResolvedValueMatch,
-  expectResolvedValueEqual,
-} from '../../utils';
+import { validUser, validIntegration, expectResolved } from '../../utils';
 const mockSet = jest.fn();
 jest.mock('@lib/redisClient', () => ({ redisClient: { set: mockSet } }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
@@ -17,7 +12,7 @@ const mockKnex = jest.fn(() => ({
 }));
 jest.mock('knex', () => jest.fn(() => mockKnex));
 
-import { init } from '@controllers/restore/init';
+import { initReset } from '@controllers/integrations/initReset';
 import express, { NextFunction, Request } from 'express';
 import request from 'supertest';
 import '@lib/http';
@@ -32,7 +27,7 @@ describe('Restore Init Controller', () => {
   beforeAll(() => {
     app.use(express.json({ type: 'application/json' }));
     app.use('/', mockAuthMiddleware);
-    app.post('/', init);
+    app.post('/', initReset);
   });
   afterAll(() => {
     jest.restoreAllMocks();
@@ -63,21 +58,17 @@ describe('Restore Init Controller', () => {
   });
 
   it('should return 404 if user does not exist', async () => {
-    mockAuthMiddleware.mockImplementationOnce(
-      (req: Request, _res, next: NextFunction) => {
-        req.integration = { ...validIntegration, id: 42 };
-        return next();
-      }
-    );
     mockFirst.mockResolvedValueOnce(undefined);
-    const responses = await Promise.all([
-      request(app).post('/').send({ email: validUser.email }),
-      request(app).post('/').send({ email: validUser.email }),
-    ]);
-    expectResolvedValueEqual(mockFirst, undefined);
-    responses.forEach((response) => {
-      expect(response.notFound);
+    const response = await request(app)
+      .post('/')
+      .send({ email: validUser.email });
+    expect(mockKnex).toHaveBeenCalledWith('users');
+    expect(mockWhere).toHaveBeenCalledWith({
+      email: validUser.email,
+      integrationId: validIntegration.id,
     });
+    expectResolved(mockFirst).toBeUndefined();
+    expect(response.notFound);
   });
 
   it('should do many stuff when ok', async () => {
@@ -89,17 +80,17 @@ describe('Restore Init Controller', () => {
       integrationId: validIntegration.id,
       email: 'an email',
     });
-    expectResolvedValueMatch(mockFirst, validUser);
+    expectResolved(mockFirst).toMatchObject(validUser);
     expect(mockUuid).toHaveBeenCalled();
     expect(mockUuid).toHaveReturnedWith('uuid-mocked');
     expect(mockSet).toHaveBeenCalled();
     expect(mockSet).toHaveBeenCalledWith(
-      'restore:uuid-mocked',
-      validUser.id,
+      'reset:uuid-mocked',
+      String(validUser.id),
       600
     );
     expect(response.ok);
-    expect(response.body).toMatchObject({ SVCRestoreToken: 'uuid-mocked' });
+    expect(response.body).toMatchObject({ success: true });
   });
 
   it('should return 500 if anything throws', async () => {
