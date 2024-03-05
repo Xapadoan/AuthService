@@ -6,7 +6,7 @@ const mockFetch = jest.fn().mockResolvedValue({
 global.fetch = mockFetch;
 
 import { detectCardId } from '@lib/detectCardId';
-import { expectResolvedValueMatch } from '../utils';
+import { expectResolved } from '../utils';
 
 const cardNumber = '123123123123';
 const name = 'DUPONT';
@@ -90,7 +90,7 @@ describe('Detect Card Id', () => {
     mockFetchJson.mockResolvedValueOnce(highQualityDetection);
     const result = await detectCardId('imageAsBase64');
     expect(mockFetch).toHaveBeenCalled();
-    expectResolvedValueMatch(mockFetch, { ok: true, json: mockFetchJson });
+    expectResolved(mockFetch).toMatchObject({ ok: true, json: mockFetchJson });
     expect(mockFetchJson).toHaveBeenCalled();
     // expectResolvedValueMatch(mockFetchJson, highQualityDetection);
     expect(result).toMatchObject({ success: true, id: cardNumber });
@@ -100,28 +100,28 @@ describe('Detect Card Id', () => {
     mockFetchJson.mockResolvedValueOnce(failedTextDetection);
     const result = await detectCardId('imageAsBase64');
     expect(mockFetch).toHaveBeenCalled();
-    expectResolvedValueMatch(mockFetchJson, failedTextDetection);
+    expectResolved(mockFetchJson).toMatchObject(failedTextDetection);
     expect(result).toMatchObject({ success: false });
   });
 
   it('should return when file parse fails', async () => {
     mockFetchJson.mockResolvedValueOnce(failedFileParsing);
     const result = await detectCardId('imageAsBase64');
-    expectResolvedValueMatch(mockFetchJson, failedFileParsing);
+    expectResolved(mockFetchJson).toMatchObject(failedFileParsing);
     expect(result).toMatchObject({ success: false });
   });
 
   it('should be able to get cardId from checksum if not explicitly readable', async () => {
     mockFetchJson.mockResolvedValueOnce(lowQualityTextDetection);
     const result = await detectCardId('imageAsBase64');
-    expectResolvedValueMatch(mockFetchJson, lowQualityTextDetection);
+    expectResolved(mockFetchJson).toMatchObject(lowQualityTextDetection);
     expect(result).toMatchObject({ success: true, id: cardNumber });
   });
 
   it('should return when cardId is not readable', async () => {
     mockFetchJson.mockResolvedValueOnce(unreadableTextDetection);
     const result = await detectCardId('imageAsBase64');
-    expectResolvedValueMatch(mockFetchJson, unreadableTextDetection);
+    expectResolved(mockFetchJson).toMatchObject(unreadableTextDetection);
     expect(result).toMatchObject({ success: false });
   });
 

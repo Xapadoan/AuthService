@@ -1,17 +1,15 @@
-import {
-  validUser,
-  expectResolvedValueEqual,
-  expectResolvedValueMatch,
-} from '../../utils';
+import { validUserJoinIntegration, expectResolved } from '../../utils';
 const mockDel = jest.fn();
-const mockGet = jest.fn().mockResolvedValue(String(validUser.id));
+const mockGet = jest
+  .fn()
+  .mockResolvedValue(String(validUserJoinIntegration.id));
 jest.mock('@lib/redisClient', () => ({
   redisClient: { del: mockDel, get: mockGet },
 }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
 jest.mock('uuid', () => ({ v4: mockUuid }));
 const mockWhere = jest.fn();
-const mockFirst = jest.fn().mockResolvedValue(validUser);
+const mockFirst = jest.fn().mockResolvedValue(validUserJoinIntegration);
 const mockKnex = jest.fn(() => ({
   innerJoin: jest.fn().mockReturnThis(),
   select: jest.fn().mockReturnThis(),
@@ -21,7 +19,7 @@ const mockKnex = jest.fn(() => ({
 jest.mock('knex', () => jest.fn(() => mockKnex));
 const mockDetectCardId = jest
   .fn()
-  .mockResolvedValue({ success: true, id: validUser.cardId });
+  .mockResolvedValue({ success: true, id: validUserJoinIntegration.cardId });
 jest.mock('@lib/detectCardId', () => ({ detectCardId: mockDetectCardId }));
 const mockFetchJson = jest.fn();
 const mockFetch = jest.fn().mockResolvedValue({
@@ -77,36 +75,36 @@ describe('Restore Upload Controller', () => {
     expect(mockGet).toHaveBeenCalledWith(
       `restore:${validPayload.SVCRestoreToken}`
     );
-    expectResolvedValueEqual(mockGet, null);
+    expectResolved(mockGet).toBeNull();
     expect(response.notFound);
   });
 
   it('should return 404 when user not found', async () => {
     mockFirst.mockResolvedValueOnce(undefined);
     const response = await request(app).post('/').send(validPayload);
-    expectResolvedValueEqual(mockGet, String(validUser.id));
+    expectResolved(mockGet).toEqual(String(validUserJoinIntegration.id));
     expect(mockWhere).toHaveBeenCalledWith({
-      'users.id': String(validUser.id),
+      'users.id': String(validUserJoinIntegration.id),
     });
-    expectResolvedValueEqual(mockFirst, undefined);
+    expectResolved(mockFirst).toBeUndefined();
     expect(response.notFound);
   });
 
   it('should return 422 when text detection fails', async () => {
     mockDetectCardId.mockResolvedValueOnce({ success: false });
     const response = await request(app).post('/').send(validPayload);
-    expectResolvedValueEqual(mockFirst, validUser);
+    expectResolved(mockFirst).toMatchObject(validUserJoinIntegration);
     expect(mockDetectCardId).toHaveBeenCalledWith(validPayload.base64Image);
-    expectResolvedValueMatch(mockDetectCardId, { success: false });
+    expectResolved(mockDetectCardId).toMatchObject({ success: false });
     expect(response.notAcceptable);
   });
 
   it('should return 403 when detected card id is different than the one stored', async () => {
     mockDetectCardId.mockResolvedValueOnce({ success: true, id: 'not valid' });
     const response = await request(app).post('/').send(validPayload);
-    expectResolvedValueEqual(mockFirst, validUser);
+    expectResolved(mockFirst).toMatchObject(validUserJoinIntegration);
     expect(mockDetectCardId).toHaveBeenCalledWith(validPayload.base64Image);
-    expectResolvedValueMatch(mockDetectCardId, {
+    expectResolved(mockDetectCardId).toMatchObject({
       success: true,
       id: 'not valid',
     });
@@ -115,21 +113,26 @@ describe('Restore Upload Controller', () => {
 
   it('should dot many things when all is good', async () => {
     const response = await request(app).post('/').send(validPayload);
-    expectResolvedValueMatch(mockFirst, validUser);
-    expectResolvedValueMatch(mockDetectCardId, {
+    expectResolved(mockFirst).toMatchObject(validUserJoinIntegration);
+    expectResolved(mockDetectCardId).toMatchObject({
       success: true,
-      id: validUser.cardId,
+      id: validUserJoinIntegration.cardId,
     });
     expect(mockUuid).toHaveBeenCalled();
     expect(mockUuid).toHaveReturnedWith('uuid-mocked');
-    expect(mockFetch.mock.lastCall[0]).toEqual(validUser.restoreWebhook);
-    expect(mockFetch.mock.lastCall[1]).toMatchObject({
-      method: 'POST',
-      body: JSON.stringify({
-        EACRestoreToken: validPayload.EACRestoreToken,
-        apiKey: 'uuid-mocked',
-      }),
-    });
+    expect(mockFetch).toHaveBeenCalledWith(
+      validUserJoinIntegration.restoreWebhook,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          EACRestoreToken: validPayload.EACRestoreToken,
+          apiKey: 'uuid-mocked',
+        }),
+      }
+    );
     expect(mockDel).toHaveBeenCalledWith(
       `restore:${validPayload.SVCRestoreToken}`
     );
