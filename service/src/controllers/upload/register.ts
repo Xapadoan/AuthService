@@ -4,7 +4,7 @@ import {
   Integration,
   RegisterUploadServiceInput,
   handleResponse,
-} from 'shared';
+} from 'authservice-shared';
 import { Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import { redisClient } from '@lib/redisClient';
