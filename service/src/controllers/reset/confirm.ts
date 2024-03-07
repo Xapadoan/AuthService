@@ -10,17 +10,17 @@ import { User } from '@lib/types';
 import knex from '@data';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function validate(body: any): body is ResetConfirmServiceInput {
-  if (typeof body['SVCResetInitToken'] !== 'string') return false;
+function validate(query: any): query is ResetConfirmServiceInput {
+  if (typeof query['SVCResetInitToken'] !== 'string') return false;
   return true;
 }
 
 export async function confirm(req: Request, res: Response) {
   try {
-    if (!validate(req.body)) {
+    if (!validate(req.query)) {
       return res.status(400).json({ error: 'Bad Body' });
     }
-    const { SVCResetInitToken } = req.body;
+    const { SVCResetInitToken } = req.query;
     const userId = await redisClient.get(`reset:${SVCResetInitToken}`);
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
@@ -38,6 +38,7 @@ export async function confirm(req: Request, res: Response) {
     }).then((res) => handleResponse<ResetConfirmServerOutput>(res));
     await redisClient.set(`reset:${userId}`, EACResetToken);
     return res.redirect(
+      307,
       `${user.resetUploadPage}?SVCResetInitToken=${SVCResetInitToken}`
     );
   } catch (error) {
