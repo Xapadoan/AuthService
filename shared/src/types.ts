@@ -66,6 +66,10 @@ export interface ResetInitServiceInput {
   email: string;
 }
 
+export interface RestoreInitServerOutput {
+  uploadUrl: string;
+}
+
 export interface ResetConfirmServiceInput {
   SVCResetInitToken: string;
 }
@@ -81,4 +85,9 @@ export interface ResetUploadServiceInput {
 
 export interface ResetUploadServiceOutput {
   EACResetToken: string;
+}
+
+export interface ResetUploadServerInput {
+  EACResetToken: string;
+  apiKey: string;
 }

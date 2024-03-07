@@ -4,6 +4,8 @@ import {
   Failable,
   RegisterUploadServerInput,
   RestoreUploadServerInput,
+  ResetConfirmServerOutput,
+  ResetUploadServerInput,
 } from 'authservice-shared';
 
 export {
@@ -12,4 +14,6 @@ export {
   Failable,
   RegisterUploadServerInput,
   RestoreUploadServerInput,
+  ResetConfirmServerOutput,
+  ResetUploadServerInput,
 };

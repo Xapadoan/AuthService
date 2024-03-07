@@ -7,6 +7,8 @@ import {
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
   RegisterUploadServerInput,
+  ResetInitServiceInput,
+  ResetUploadServerInput,
   RestoreInitServiceInput,
   RestoreInitServiceOutput,
   RestoreUploadServerInput,
@@ -51,6 +53,23 @@ export class ServerClient {
     return this.replaceTmp(`restore:${EACRestoreToken}`, apiKey);
   }
 
+  public async onResetConfirm() {
+    const EACResetToken = uuid();
+    await this.redis.set(
+      `reset:${EACResetToken}`,
+      'pending',
+      this.tmpStorageDuration
+    );
+    return EACResetToken;
+  }
+
+  public async onResetUpload({
+    EACResetToken,
+    apiKey,
+  }: ResetUploadServerInput) {
+    return this.replaceTmp(`reset:${EACResetToken}`, apiKey);
+  }
+
   private async replaceTmp(key: string, value: string): Promise<Failable> {
     const pendingValue = await this.redis.get(key);
     if (pendingValue !== 'pending')
@@ -65,6 +84,10 @@ export class ServerClient {
 
   public async restoreSetupSession(EACRestoreToken: string) {
     return this.setupSession(`restore:${EACRestoreToken}`);
+  }
+
+  public async resetSetupSession(EACResetToken: string) {
+    return this.setupSession(`reset:${EACResetToken}`);
   }
 
   private async setupSession(
@@ -122,7 +145,19 @@ export class ServerClient {
         EACRestoreToken,
       };
     } catch (error) {
-      console.error('Init Register Error: ', error);
+      console.error('Init Restore Error: ', error);
+    }
+  }
+
+  public async initReset({ email }: ResetInitServiceInput) {
+    try {
+      await this.fetchService<Failable>('reset', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      });
+      return { uploadUrl: `${AUTHSERVICE_SERVICE_HOST}/upload/reset` };
+    } catch (error) {
+      console.error('Init Reset Error: ', error);
     }
   }
 
@@ -130,7 +165,7 @@ export class ServerClient {
     integrationId?: number;
     apiKey?: string;
   }) {
-    const baseUrl = `${AUTHSERVICE_SERVICE_HOST}/${initParams?.integrationId || AUTHSERVICE_INTEGRATION_ID}`;
+    const baseUrl = `${AUTHSERVICE_SERVICE_HOST}/integrations/${initParams?.integrationId || AUTHSERVICE_INTEGRATION_ID}`;
     const baseApiKey = initParams?.apiKey || AUTHSERVICE_INTEGRATION_API_KEY;
     if (!baseApiKey) throw new Error('Api key is required');
     const integration: Integration = await fetch(baseUrl, {
@@ -143,7 +178,7 @@ export class ServerClient {
   }
 
   private async fetchService<T>(
-    endpoint: 'register' | 'restore',
+    endpoint: 'register' | 'restore' | 'reset',
     init?: RequestInit
   ) {
     return fetch(`${this.url}/${endpoint}`, {
