@@ -34,7 +34,7 @@ describe('Reset Confirm Controller', () => {
   const app = express();
   beforeAll(() => {
     app.use(express.json({ type: 'application/json' }));
-    app.post('/', confirm);
+    app.get('/', confirm);
   });
   afterAll(() => {
     jest.restoreAllMocks();
@@ -44,12 +44,11 @@ describe('Reset Confirm Controller', () => {
     jest.clearAllMocks();
   });
 
-  it('should return 400 if body is not correctly set', async () => {
+  it('should return 400 if query is not correctly set', async () => {
     const responses = await Promise.all([
-      request(app).post('/').send(),
-      request(app).post('/').send({}),
-      request(app).post('/').send({ notSVCResetInitToken: 'asd' }),
-      request(app).post('/').send({ SVCResetInitToken: 123 }),
+      request(app).get('/'),
+      request(app).get('/?notSVCResetInitToken=asd'),
+      request(app).get('/?SVCResetInitToken='),
     ]);
     responses.forEach((response) => {
       expect(response.badRequest);
@@ -59,9 +58,7 @@ describe('Reset Confirm Controller', () => {
 
   it('should return 404 when SVCResetInitToken is not set', async () => {
     mockGet.mockResolvedValueOnce(null);
-    const response = await request(app)
-      .post('/')
-      .send({ SVCResetInitToken: 'token' });
+    const response = await request(app).get('/?SVCResetInitToken=token');
     expect(mockGet).toHaveBeenCalledWith('reset:token');
     expectResolved(mockGet).toBeNull();
     expect(response.notFound);
@@ -69,9 +66,7 @@ describe('Reset Confirm Controller', () => {
 
   it('should return 404 when user does not exists', async () => {
     mockFirst.mockResolvedValueOnce(undefined);
-    const response = await request(app)
-      .post('/')
-      .send({ SVCResetInitToken: 'token' });
+    const response = await request(app).get('/?SVCResetInitToken=token');
     expect(mockGet).toHaveBeenCalledWith('reset:token');
     expectResolved(mockGet).toEqual(String(validUserJoinIntegration.id));
     expect(mockKnex).toHaveBeenCalledWith('users');
@@ -90,9 +85,7 @@ describe('Reset Confirm Controller', () => {
 
   it('should get a token from server and use it for redirection', async () => {
     mockFetchJson.mockResolvedValueOnce({ EACResetToken: 'EACResetToken' });
-    const response = await request(app)
-      .post('/')
-      .send({ SVCResetInitToken: 'token' });
+    const response = await request(app).get('/?SVCResetInitToken=token');
     expect(mockGet).toHaveBeenCalledWith('reset:token');
     expectResolved(mockGet).toEqual(String(validUserJoinIntegration.id));
     expect(mockKnex).toHaveBeenCalledWith('users');
@@ -139,11 +132,11 @@ describe('Reset Confirm Controller', () => {
       throw new Error('Intentional Set error');
     });
     const responses = await Promise.all([
-      request(app).post('/').send({ SVCResetInitToken: 'token' }),
-      request(app).post('/').send({ SVCResetInitToken: 'token' }),
-      request(app).post('/').send({ SVCResetInitToken: 'token' }),
-      request(app).post('/').send({ SVCResetInitToken: 'token' }),
-      request(app).post('/').send({ SVCResetInitToken: 'token' }),
+      request(app).get('/?SVCResetInitToken=token'),
+      request(app).get('/?SVCResetInitToken=token'),
+      request(app).get('/?SVCResetInitToken=token'),
+      request(app).get('/?SVCResetInitToken=token'),
+      request(app).get('/?SVCResetInitToken=token'),
     ]);
     responses.forEach((response) => {
       expect(response.serverError);

@@ -12,6 +12,7 @@ import knex from '@data';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(query: any): query is ResetConfirmServiceInput {
   if (typeof query['SVCResetInitToken'] !== 'string') return false;
+  if (query['SVCResetInitToken'].length < 1) return false;
   return true;
 }
 
