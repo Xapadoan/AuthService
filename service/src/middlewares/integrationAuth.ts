@@ -3,12 +3,15 @@ import knex from '@data';
 import '@lib/http';
 
 export async function integrationAuth(
-  req: Request,
+  req: Request<{ integrationId: number }>,
   res: Response,
   next: NextFunction
 ) {
   try {
     const { integrationId } = req.params;
+    if (!Number.isInteger(Number(integrationId))) {
+      return res.status(400).json({ error: 'Invalid integrationId' });
+    }
     const { authorization } = req.headers;
     if (!authorization) {
       return res.status(401).json({ error: 'Missing Authentication' });

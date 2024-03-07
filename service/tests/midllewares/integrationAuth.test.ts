@@ -81,6 +81,14 @@ describe('Integration Auth Middleware', () => {
     expect(controllerSpy).not.toHaveBeenCalled();
   });
 
+  it('should return 400 if integrationId is not a number', async () => {
+    const response = await request(app)
+      .get('/undefined')
+      .set('Authorization', `Bearer ${validIntegration.apiKey}`);
+    expect(controllerSpy).not.toHaveBeenCalled();
+    expect(response.badRequest);
+  });
+
   it('should return 500 if anything throws', async () => {
     mockQueryBuilder.select.mockImplementationOnce(() => {
       throw new Error('Intentional select error');
