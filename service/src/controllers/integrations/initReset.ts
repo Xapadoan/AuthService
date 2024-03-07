@@ -16,10 +16,10 @@ function validate(body: any): body is ResetInitServiceInput {
 
 async function sendConfirmationEmail({
   email,
-  SVCResetInitToken,
+  resetLink,
 }: {
   email: string;
-  SVCResetInitToken: string;
+  resetLink: string;
 }) {
   const transport = createTransport({
     host: String(SMTP_HOST),
@@ -39,10 +39,10 @@ async function sendConfirmationEmail({
     html: `
       <h1>Reset your cardId</h1>
       <p>Click 
-      <a href=${HOST}/reset/confirm?SVCResetInitToken=${SVCResetInitToken}>here</a>
+      <a href=${resetLink}>here</a>
        to confirm and start the reset process. If the link doesn't work copy paste
        the following in a new tab:<br/>
-      ${HOST}/reset/confirm?SVCResetInitToken=${SVCResetInitToken}
+      ${resetLink}
       </p>
     `,
   });
@@ -71,7 +71,7 @@ export async function initReset(
     await redisClient.set(`reset:${SVCResetInitToken}`, String(user.id), 600);
     await sendConfirmationEmail({
       email,
-      SVCResetInitToken,
+      resetLink: `${HOST}/reset/confirm?SVCResetInitToken=${SVCResetInitToken}`,
     });
     return res.json({ success: true });
   } catch (error) {

@@ -1,4 +1,8 @@
+import 'dotenv/config';
 import { validUser, validIntegration, expectResolved } from '../../utils';
+
+const { HOST, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+
 const mockSet = jest.fn();
 jest.mock('@lib/redisClient', () => ({ redisClient: { set: mockSet } }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
@@ -11,6 +15,9 @@ const mockKnex = jest.fn(() => ({
   first: mockFirst,
 }));
 jest.mock('knex', () => jest.fn(() => mockKnex));
+const mockSendMail = jest.fn();
+const mockCreateTransport = jest.fn(() => ({ sendMail: mockSendMail }));
+jest.mock('nodemailer', () => ({ createTransport: mockCreateTransport }));
 
 import { initReset } from '@controllers/integrations/initReset';
 import express, { NextFunction, Request } from 'express';
@@ -89,6 +96,20 @@ describe('Restore Init Controller', () => {
       String(validUser.id),
       600
     );
+    expect(mockCreateTransport).toHaveBeenCalledWith({
+      host: String(SMTP_HOST),
+      port: Number(SMTP_PORT),
+      secure: Number(SMTP_PORT) === 465,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    });
+    expect(mockSendMail).toHaveBeenCalled();
+    const mailParams = mockSendMail.mock.lastCall?.[0];
+    const expectedResetLink = `${HOST}/reset/confirm?SVCResetInitToken=uuid-mocked`;
+    expect(mailParams['to']).toEqual('an email');
+    expect(mailParams['html']).toContain(expectedResetLink);
     expect(response.ok);
     expect(response.body).toMatchObject({ success: true });
   });
