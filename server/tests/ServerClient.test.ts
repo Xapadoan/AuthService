@@ -1,5 +1,4 @@
-import { config } from 'dotenv';
-config({ path: 'tests/.env.test' });
+import 'dotenv/config';
 
 const integration = {
   id: 1,
@@ -233,7 +232,7 @@ describe('Server Client Init Reset', () => {
 
   beforeAll(async () => {
     client = await ServerClient.init();
-    mockFetchJson.mockResolvedValue({ SVCRestoreToken: 'token' });
+    mockFetchJson.mockResolvedValue({ success: true });
   });
   afterAll(() => {
     jest.restoreAllMocks();
@@ -245,7 +244,6 @@ describe('Server Client Init Reset', () => {
 
   it('should be able to init the reset process', async () => {
     const expectedUploadUrl = `${AUTHSERVICE_SERVICE_HOST}/upload/reset`;
-    mockFetchJson.mockResolvedValueOnce({ success: true });
     const result = await client.initReset({ email: 'asd@mail.com' });
     expect(mockFetch).toHaveBeenCalledWith(`${client.url}/reset`, {
       method: 'POST',
