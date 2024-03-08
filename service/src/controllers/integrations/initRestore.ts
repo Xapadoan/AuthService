@@ -5,7 +5,7 @@ import {
   HTTPError,
   RestoreInitServiceInput,
   RestoreInitServiceOutput,
-} from 'authservice-shared';
+} from '@authservice/shared';
 import { redisClient } from '@lib/redisClient';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

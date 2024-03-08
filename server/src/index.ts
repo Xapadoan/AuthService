@@ -6,7 +6,7 @@ import {
   RestoreUploadServerInput,
   ResetConfirmServerOutput,
   ResetUploadServerInput,
-} from 'authservice-shared';
+} from '@authservice/shared';
 
 export {
   ServerClient,

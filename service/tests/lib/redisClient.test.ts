@@ -1,6 +1,6 @@
-jest.mock('authservice-shared');
+jest.mock('@authservice/shared');
 
-import { RedisClient } from 'authservice-shared';
+import { RedisClient } from '@authservice/shared';
 
 const MockRedisClient = jest.mocked(RedisClient);
 

@@ -12,7 +12,7 @@ import {
   RestoreInitServiceInput,
   RestoreInitServiceOutput,
   RestoreUploadServerInput,
-} from 'authservice-shared';
+} from '@authservice/shared';
 
 const {
   AUTHSERVICE_INTEGRATION_ID,

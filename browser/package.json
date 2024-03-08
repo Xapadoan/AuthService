@@ -1,9 +1,12 @@
 {
-  "name": "authservice-browser",
+  "name": "@authservice/browser",
   "version": "0.0.1",
   "description": "The browser lib to be installed on the front-end",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "@authservice/shared": "file:../shared"
+  },
   "devDependencies": {
     "@parcel/packager-ts": "^2.11.0",
     "@parcel/transformer-typescript-types": "^2.11.0",
@@ -23,8 +26,5 @@
   "bugs": {
     "url": "https://github.com/Xapadoan/AuthService/issues"
   },
-  "homepage": "https://github.com/Xapadoan/AuthService#readme",
-  "dependencies": {
-    "authservice-shared": "file:../shared"
-  }
+  "homepage": "https://github.com/Xapadoan/AuthService#readme"
 }

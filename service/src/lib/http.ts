@@ -1,4 +1,4 @@
-import { Integration } from 'authservice-shared';
+import { Integration } from '@authservice/shared';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

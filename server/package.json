@@ -1,5 +1,5 @@
 {
-  "name": "authservice-server",
+  "name": "@authservice/server",
   "version": "0.0.1",
   "description": "The lib that should run on the server",
   "main": "src/index.ts",
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Xapadoan/AuthService#readme",
   "dependencies": {
-    "authservice-shared": "file:../shared",
+    "@authservice/shared": "file:../shared",
     "dotenv": "^16.4.5",
     "redis": "^4.6.13",
     "uuid": "^9.0.1"

@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { Failable, HTTPError, ResetInitServiceInput } from 'authservice-shared';
+import {
+  Failable,
+  HTTPError,
+  ResetInitServiceInput,
+} from '@authservice/shared';
 import { v4 as uuid } from 'uuid';
 import { createTransport } from 'nodemailer';
 import knex from '@data';
