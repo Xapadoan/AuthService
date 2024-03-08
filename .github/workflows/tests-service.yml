@@ -1,0 +1,54 @@
+name: Tests - Service
+run-name: Testing Service
+
+on:
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+      - synchronize
+    branches:
+      - dev
+    paths:
+      - 'service/**'
+      - 'shared/**'
+      - '.github/workflows/tests-service.yml'
+      - 'package.json'
+
+jobs:
+  tests:
+    runs-on: 'ubuntu-latest'
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: testdb
+          MYSQL_ROOT_PASSWORD: testrootpass
+        ports:
+          - 3306:3306
+    steps:
+      - name: Setup
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        run: npm i && npm -w service i
+      - name: Run tests
+        run: cd service && ../node_modules/.bin/jest
+        env:
+          DB_HOST: 127.0.0.1
+          DB_NAME: testdb
+          DB_USER: root
+          DB_PASS: testrootpass
+          DB_PORT: 3306
+          HOST: 127.0.0.1
+          PORT: 8080
+          OCRSPACE_API_KEY: ocrtestapikey
+          OCRSPACE_URL: ocrspacetest
+          SMTP_HOST: smtp.test.dev
+          SMTP_PORT: 123
+          SMTP_USER: smtpuser
+          SMTP_PASS: smtppass
+
