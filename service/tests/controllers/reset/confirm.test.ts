@@ -47,8 +47,8 @@ describe('Reset Confirm Controller', () => {
   it('should return 400 if query is not correctly set', async () => {
     const responses = await Promise.all([
       request(app).get('/'),
-      request(app).get('/?notSVCResetInitToken=asd'),
-      request(app).get('/?SVCResetInitToken='),
+      request(app).get('/?notSVCResetToken=asd'),
+      request(app).get('/?SVCResetToken='),
     ]);
     responses.forEach((response) => {
       expect(response.badRequest);
@@ -56,9 +56,9 @@ describe('Reset Confirm Controller', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('should return 404 when SVCResetInitToken is not set', async () => {
+  it('should return 404 when SVCResetToken is not set', async () => {
     mockGet.mockResolvedValueOnce(null);
-    const response = await request(app).get('/?SVCResetInitToken=token');
+    const response = await request(app).get('/?SVCResetToken=token');
     expect(mockGet).toHaveBeenCalledWith('reset:token');
     expectResolved(mockGet).toBeNull();
     expect(response.notFound);
@@ -66,7 +66,7 @@ describe('Reset Confirm Controller', () => {
 
   it('should return 404 when user does not exists', async () => {
     mockFirst.mockResolvedValueOnce(undefined);
-    const response = await request(app).get('/?SVCResetInitToken=token');
+    const response = await request(app).get('/?SVCResetToken=token');
     expect(mockGet).toHaveBeenCalledWith('reset:token');
     expectResolved(mockGet).toEqual(String(validUserJoinIntegration.id));
     expect(mockKnex).toHaveBeenCalledWith('users');
@@ -85,7 +85,7 @@ describe('Reset Confirm Controller', () => {
 
   it('should get a token from server and use it for redirection', async () => {
     mockFetchJson.mockResolvedValueOnce({ EACResetToken: 'EACResetToken' });
-    const response = await request(app).get('/?SVCResetInitToken=token');
+    const response = await request(app).get('/?SVCResetToken=token');
     expect(mockGet).toHaveBeenCalledWith('reset:token');
     expectResolved(mockGet).toEqual(String(validUserJoinIntegration.id));
     expect(mockKnex).toHaveBeenCalledWith('users');
@@ -111,7 +111,7 @@ describe('Reset Confirm Controller', () => {
     );
     expect(response.redirect);
     expect(response.headers['location']).toEqual(
-      `${validUserJoinIntegration.resetUploadPage}?SVCResetInitToken=token`
+      `${validUserJoinIntegration.resetUploadPage}?SVCResetToken=token`
     );
   });
 
@@ -132,11 +132,11 @@ describe('Reset Confirm Controller', () => {
       throw new Error('Intentional Set error');
     });
     const responses = await Promise.all([
-      request(app).get('/?SVCResetInitToken=token'),
-      request(app).get('/?SVCResetInitToken=token'),
-      request(app).get('/?SVCResetInitToken=token'),
-      request(app).get('/?SVCResetInitToken=token'),
-      request(app).get('/?SVCResetInitToken=token'),
+      request(app).get('/?SVCResetToken=token'),
+      request(app).get('/?SVCResetToken=token'),
+      request(app).get('/?SVCResetToken=token'),
+      request(app).get('/?SVCResetToken=token'),
+      request(app).get('/?SVCResetToken=token'),
     ]);
     responses.forEach((response) => {
       expect(response.serverError);

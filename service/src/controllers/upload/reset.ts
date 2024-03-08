@@ -15,7 +15,7 @@ import { v4 as uuid } from 'uuid';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is ResetUploadServiceInput {
   if (typeof body['base64Image'] !== 'string') return false;
-  if (typeof body['SVCResetInitToken'] !== 'string') return false;
+  if (typeof body['SVCResetToken'] !== 'string') return false;
   return true;
 }
 
@@ -27,8 +27,8 @@ export async function resetUpload(
     if (!validate(req.body)) {
       return res.status(400).json({ error: 'Bad body' });
     }
-    const { base64Image, SVCResetInitToken } = req.body;
-    const userId = await redisClient.get(`reset:${SVCResetInitToken}`);
+    const { base64Image, SVCResetToken } = req.body;
+    const userId = await redisClient.get(`reset:${SVCResetToken}`);
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
     }

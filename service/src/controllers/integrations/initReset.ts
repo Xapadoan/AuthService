@@ -67,11 +67,11 @@ export async function initReset(
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const SVCResetInitToken = uuid();
-    await redisClient.set(`reset:${SVCResetInitToken}`, String(user.id), 600);
+    const SVCResetToken = uuid();
+    await redisClient.set(`reset:${SVCResetToken}`, String(user.id), 600);
     await sendConfirmationEmail({
       email,
-      resetLink: `${HOST}/reset/confirm?SVCResetInitToken=${SVCResetInitToken}`,
+      resetLink: `${HOST}/reset/confirm?SVCResetToken=${SVCResetToken}`,
     });
     return res.json({ success: true });
   } catch (error) {

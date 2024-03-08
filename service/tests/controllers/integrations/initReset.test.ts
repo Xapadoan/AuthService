@@ -107,7 +107,7 @@ describe('Restore Init Controller', () => {
     });
     expect(mockSendMail).toHaveBeenCalled();
     const mailParams = mockSendMail.mock.lastCall?.[0];
-    const expectedResetLink = `${HOST}/reset/confirm?SVCResetInitToken=uuid-mocked`;
+    const expectedResetLink = `${HOST}/reset/confirm?SVCResetToken=uuid-mocked`;
     expect(mailParams['to']).toEqual('an email');
     expect(mailParams['html']).toContain(expectedResetLink);
     expect(response.ok);

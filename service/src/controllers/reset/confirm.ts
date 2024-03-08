@@ -11,8 +11,8 @@ import knex from '@data';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(query: any): query is ResetConfirmServiceInput {
-  if (typeof query['SVCResetInitToken'] !== 'string') return false;
-  if (query['SVCResetInitToken'].length < 1) return false;
+  if (typeof query['SVCResetToken'] !== 'string') return false;
+  if (query['SVCResetToken'].length < 1) return false;
   return true;
 }
 
@@ -21,8 +21,8 @@ export async function confirm(req: Request, res: Response) {
     if (!validate(req.query)) {
       return res.status(400).json({ error: 'Bad Body' });
     }
-    const { SVCResetInitToken } = req.query;
-    const userId = await redisClient.get(`reset:${SVCResetInitToken}`);
+    const { SVCResetToken } = req.query;
+    const userId = await redisClient.get(`reset:${SVCResetToken}`);
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -40,7 +40,7 @@ export async function confirm(req: Request, res: Response) {
     await redisClient.set(`reset:${userId}`, EACResetToken);
     return res.redirect(
       307,
-      `${user.resetUploadPage}?SVCResetInitToken=${SVCResetInitToken}`
+      `${user.resetUploadPage}?SVCResetToken=${SVCResetToken}`
     );
   } catch (error) {
     console.error('Reset card id confirmation failed: ', error);

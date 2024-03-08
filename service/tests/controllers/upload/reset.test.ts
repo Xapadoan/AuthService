@@ -41,7 +41,7 @@ import '@lib/http';
 
 const validPayload = {
   base64Image: 'base64Image',
-  SVCResetInitToken: 'SVCResetInitToken',
+  SVCResetToken: 'SVCResetToken',
 };
 
 describe('Restore Upload Controller', () => {
@@ -65,10 +65,10 @@ describe('Restore Upload Controller', () => {
       request(app).post('/').send({ base64Image: validPayload.base64Image }),
       request(app)
         .post('/')
-        .send({ SVCResetInitToken: validPayload.SVCResetInitToken }),
+        .send({ SVCResetToken: validPayload.SVCResetToken }),
       request(app).post('/').send({
         base64Image: 123,
-        SVCRestoreToken: validPayload.SVCResetInitToken,
+        SVCRestoreToken: validPayload.SVCResetToken,
       }),
       request(app).post('/').send({
         base64Image: validPayload.base64Image,
@@ -81,11 +81,11 @@ describe('Restore Upload Controller', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('should return 404 when SVCResetInitToken not found', async () => {
+  it('should return 404 when SVCResetToken not found', async () => {
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
     expect(mockGet).toHaveBeenCalledWith(
-      `reset:${validPayload.SVCResetInitToken}`
+      `reset:${validPayload.SVCResetToken}`
     );
     expectResolved(mockGet).toBeNull();
     expect(response.notFound);
@@ -96,7 +96,7 @@ describe('Restore Upload Controller', () => {
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
     expect(mockGet).toHaveBeenCalledWith(
-      `reset:${validPayload.SVCResetInitToken}`
+      `reset:${validPayload.SVCResetToken}`
     );
     expectNthResolved(mockGet, 1).toEqual(String(validUserJoinIntegration.id));
     expect(mockGet).toHaveBeenCalledWith(
@@ -112,7 +112,7 @@ describe('Restore Upload Controller', () => {
     mockFirst.mockResolvedValueOnce(undefined);
     const response = await request(app).post('/').send(validPayload);
     expect(mockGet).toHaveBeenCalledWith(
-      `reset:${validPayload.SVCResetInitToken}`
+      `reset:${validPayload.SVCResetToken}`
     );
     expectNthResolved(mockGet, 1).toEqual(String(validUserJoinIntegration.id));
     expect(mockGet).toHaveBeenCalledWith(

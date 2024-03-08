@@ -71,7 +71,7 @@ export interface RestoreInitServerOutput {
 }
 
 export interface ResetConfirmServiceInput {
-  SVCResetInitToken: string;
+  SVCResetToken: string;
 }
 
 export interface ResetConfirmServerOutput {
@@ -80,7 +80,7 @@ export interface ResetConfirmServerOutput {
 
 export interface ResetUploadServiceInput {
   base64Image: string;
-  SVCResetInitToken: string;
+  SVCResetToken: string;
 }
 
 export interface ResetUploadServiceOutput {

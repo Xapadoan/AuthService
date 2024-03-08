@@ -26,15 +26,15 @@
       const sendButton = document.getElementById('send-button');
       const uploadUrl = localStorage.getItem('resetUploadUrl');
       const urlParams = new URLSearchParams(window.location.search);
-      const SVCResetInitToken = urlParams.get('SVCResetInitToken');
+      const SVCResetToken = urlParams.get('SVCResetToken');
 
-      console.log('Token: ', SVCResetInitToken)
+      console.log('Token: ', SVCResetToken)
 
       async function sendPicture() {
         const data = canvas.toDataURL('image/png');
         console.log('Data: ', data);
         const { EACResetToken } = await uploadReset(uploadUrl, {
-          SVCResetInitToken,
+          SVCResetToken,
           base64Image: data
         });
         await finishReset('http://localhost:8081/auth/reset/end', EACResetToken);
