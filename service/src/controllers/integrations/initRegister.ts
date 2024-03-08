@@ -14,7 +14,7 @@ function validate(body: any): body is RegisterInitServiceInput {
   return true;
 }
 
-export async function init(
+export async function initRegister(
   req: Request,
   res: Response<HTTPError | RegisterInitServiceOutput>
 ) {

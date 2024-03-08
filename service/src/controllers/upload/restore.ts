@@ -10,7 +10,7 @@ import {
   Integration,
   RestoreUploadServiceInput,
   handleResponse,
-} from 'shared';
+} from 'authservice-shared';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is RestoreUploadServiceInput {

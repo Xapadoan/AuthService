@@ -1,18 +1,24 @@
-import { validUserJoinIntegration, expectResolved } from '../../utils';
-const mockDel = jest.fn();
+import {
+  validUserJoinIntegration,
+  expectResolved,
+  expectNthResolved,
+} from '../../utils';
 const mockGet = jest
   .fn()
   .mockResolvedValue(String(validUserJoinIntegration.id));
 jest.mock('@lib/redisClient', () => ({
-  redisClient: { del: mockDel, get: mockGet },
+  redisClient: { get: mockGet },
 }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
 jest.mock('uuid', () => ({ v4: mockUuid }));
+const mockInnerJoin = jest.fn().mockReturnThis();
+const mockUpdate = jest.fn().mockReturnThis();
 const mockWhere = jest.fn();
 const mockFirst = jest.fn().mockResolvedValue(validUserJoinIntegration);
 const mockKnex = jest.fn(() => ({
-  innerJoin: jest.fn().mockReturnThis(),
+  innerJoin: mockInnerJoin,
   select: jest.fn().mockReturnThis(),
+  update: mockUpdate,
   where: mockWhere.mockReturnThis(),
   first: mockFirst,
 }));
@@ -28,22 +34,21 @@ const mockFetch = jest.fn().mockResolvedValue({
 });
 global.fetch = mockFetch;
 
-import { restoreUpload } from '@controllers/upload/restore';
+import { resetUpload } from '@controllers/upload/reset';
 import express from 'express';
 import request from 'supertest';
 import '@lib/http';
 
 const validPayload = {
   base64Image: 'base64Image',
-  SVCRestoreToken: 'SVCRestoreToken',
-  EACRestoreToken: 'EACRestoreToken',
+  SVCResetToken: 'SVCResetToken',
 };
 
 describe('Restore Upload Controller', () => {
   const app = express();
   beforeAll(() => {
     app.use(express.json({ type: 'application/json' }));
-    app.post('/', restoreUpload);
+    app.post('/', resetUpload);
   });
   afterAll(() => {
     jest.restoreAllMocks();
@@ -57,10 +62,17 @@ describe('Restore Upload Controller', () => {
     const responses = await Promise.all([
       request(app).post('/').send(),
       request(app).post('/').send({}),
-      request(app).post('/').send({ base64Image: 'base64Image' }),
+      request(app).post('/').send({ base64Image: validPayload.base64Image }),
+      request(app)
+        .post('/')
+        .send({ SVCResetToken: validPayload.SVCResetToken }),
       request(app).post('/').send({
-        base64Image: 'base64Image',
-        SVCRestoreToken: 'SVCRestoreToken',
+        base64Image: 123,
+        SVCRestoreToken: validPayload.SVCResetToken,
+      }),
+      request(app).post('/').send({
+        base64Image: validPayload.base64Image,
+        SVCRestoreToken: 123,
       }),
     ]);
     responses.forEach((response) => {
@@ -69,20 +81,50 @@ describe('Restore Upload Controller', () => {
     expect(mockGet).not.toHaveBeenCalled();
   });
 
-  it('should return 404 when SVCRestoreToken not found', async () => {
+  it('should return 404 when SVCResetToken not found', async () => {
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
     expect(mockGet).toHaveBeenCalledWith(
-      `restore:${validPayload.SVCRestoreToken}`
+      `reset:${validPayload.SVCResetToken}`
     );
     expectResolved(mockGet).toBeNull();
     expect(response.notFound);
   });
 
+  it('should return 404 when EACResetToken not found', async () => {
+    mockGet.mockResolvedValueOnce(String(validUserJoinIntegration.id));
+    mockGet.mockResolvedValueOnce(null);
+    const response = await request(app).post('/').send(validPayload);
+    expect(mockGet).toHaveBeenCalledWith(
+      `reset:${validPayload.SVCResetToken}`
+    );
+    expectNthResolved(mockGet, 1).toEqual(String(validUserJoinIntegration.id));
+    expect(mockGet).toHaveBeenCalledWith(
+      `reset:${validUserJoinIntegration.id}`
+    );
+    expectNthResolved(mockGet, 2).toBeNull();
+    expect(response.notFound);
+  });
+
   it('should return 404 when user not found', async () => {
+    mockGet.mockResolvedValueOnce(String(validUserJoinIntegration.id));
+    mockGet.mockResolvedValueOnce('EACResetToken');
     mockFirst.mockResolvedValueOnce(undefined);
     const response = await request(app).post('/').send(validPayload);
-    expectResolved(mockGet).toEqual(String(validUserJoinIntegration.id));
+    expect(mockGet).toHaveBeenCalledWith(
+      `reset:${validPayload.SVCResetToken}`
+    );
+    expectNthResolved(mockGet, 1).toEqual(String(validUserJoinIntegration.id));
+    expect(mockGet).toHaveBeenCalledWith(
+      `reset:${validUserJoinIntegration.id}`
+    );
+    expectNthResolved(mockGet, 2).toEqual('EACResetToken');
+    expect(mockKnex).toHaveBeenCalledWith('users');
+    expect(mockInnerJoin).toHaveBeenCalledWith(
+      'integrations',
+      'users.integrationId',
+      'integrations.id'
+    );
     expect(mockWhere).toHaveBeenCalledWith({
       'users.id': String(validUserJoinIntegration.id),
     });
@@ -93,49 +135,14 @@ describe('Restore Upload Controller', () => {
   it('should return 422 when text detection fails', async () => {
     mockDetectCardId.mockResolvedValueOnce({ success: false });
     const response = await request(app).post('/').send(validPayload);
-    expectResolved(mockFirst).toMatchObject(validUserJoinIntegration);
+    expectResolved(mockFirst).toEqual(validUserJoinIntegration);
     expect(mockDetectCardId).toHaveBeenCalledWith(validPayload.base64Image);
     expectResolved(mockDetectCardId).toMatchObject({ success: false });
     expect(response.notAcceptable);
   });
 
-  it('should return 403 when detected card id is different than the one stored', async () => {
-    mockDetectCardId.mockResolvedValueOnce({ success: true, id: 'not valid' });
+  test('best case scenario', async () => {
     const response = await request(app).post('/').send(validPayload);
-    expectResolved(mockFirst).toMatchObject(validUserJoinIntegration);
-    expect(mockDetectCardId).toHaveBeenCalledWith(validPayload.base64Image);
-    expectResolved(mockDetectCardId).toMatchObject({
-      success: true,
-      id: 'not valid',
-    });
-    expect(response.forbidden);
-  });
-
-  it('should dot many things when all is good', async () => {
-    const response = await request(app).post('/').send(validPayload);
-    expectResolved(mockFirst).toMatchObject(validUserJoinIntegration);
-    expectResolved(mockDetectCardId).toMatchObject({
-      success: true,
-      id: validUserJoinIntegration.cardId,
-    });
-    expect(mockUuid).toHaveBeenCalled();
-    expect(mockUuid).toHaveReturnedWith('uuid-mocked');
-    expect(mockFetch).toHaveBeenCalledWith(
-      validUserJoinIntegration.restoreWebhook,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          EACRestoreToken: validPayload.EACRestoreToken,
-          apiKey: 'uuid-mocked',
-        }),
-      }
-    );
-    expect(mockDel).toHaveBeenCalledWith(
-      `restore:${validPayload.SVCRestoreToken}`
-    );
     expect(response.ok);
   });
 
@@ -143,13 +150,29 @@ describe('Restore Upload Controller', () => {
     mockGet.mockImplementationOnce(() => {
       throw new Error('Intentional set error');
     });
-    mockDel.mockImplementationOnce(() => {
+    mockGet.mockImplementationOnce(() => {
       throw new Error('Intentional set error');
     });
-    mockFirst.mockImplementationOnce(() => {
+    mockKnex.mockImplementationOnce(() => {
       throw new Error('Intentional insert error');
     });
+    mockDetectCardId.mockImplementationOnce(() => {
+      throw new Error('Intentional detection error');
+    });
+    mockKnex.mockImplementationOnce(() => {
+      throw new Error('Intentional insert error');
+    });
+    mockFetch.mockImplementationOnce(() => {
+      throw new Error('Intentional fetch error');
+    });
+    mockFetchJson.mockImplementationOnce(() => {
+      throw new Error('Intentional JSON parse error');
+    });
     const responses = await Promise.all([
+      request(app).post('/').send(validPayload),
+      request(app).post('/').send(validPayload),
+      request(app).post('/').send(validPayload),
+      request(app).post('/').send(validPayload),
       request(app).post('/').send(validPayload),
       request(app).post('/').send(validPayload),
       request(app).post('/').send(validPayload),

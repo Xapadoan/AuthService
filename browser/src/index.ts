@@ -3,6 +3,7 @@ import {
   handleResponse,
   RegisterInitServerOutput,
   RegisterUploadServiceInput,
+  ResetUploadServiceInput,
   RestoreInitServerOutput,
   RestoreUploadServiceInput,
 } from 'authservice-shared';
@@ -20,6 +21,18 @@ export async function initRegister(input: string | URL, email: string) {
 }
 
 export async function initRestore(input: string | URL, email: string) {
+  const body: RestoreInitServerOutput = await fetch(input, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  }).then((res) => handleResponse(res));
+
+  return body;
+}
+
+export async function initReset(input: string | URL, email: string) {
   const body: RestoreInitServerOutput = await fetch(input, {
     method: 'POST',
     headers: {
@@ -59,6 +72,22 @@ export async function uploadRestore(
   }).then((res) => handleResponse<Failable>(res));
 }
 
+export async function uploadReset(
+  input: string | URL,
+  payload: ResetUploadServiceInput
+) {
+  const body = JSON.stringify(payload);
+  const response = await fetch(input, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then((res) => handleResponse<Failable>(res));
+  console.log('Res: ', response);
+  return response;
+}
+
 export async function finishRegister(
   input: string | URL,
   EACRegisterToken: string
@@ -85,6 +114,18 @@ export async function finishRestore(
     },
     body: JSON.stringify({
       EACRestoreToken,
+    }),
+  });
+}
+
+export async function finishReset(input: string | URL, EACResetToken: string) {
+  await fetch(input, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      EACResetToken,
     }),
   });
 }

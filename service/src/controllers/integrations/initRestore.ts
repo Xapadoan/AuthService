@@ -1,9 +1,12 @@
 import knex from '@data';
 import { Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
-import { HTTPError, RestoreInitServiceInput } from 'shared';
+import {
+  HTTPError,
+  RestoreInitServiceInput,
+  RestoreInitServiceOutput,
+} from 'authservice-shared';
 import { redisClient } from '@lib/redisClient';
-import { RestoreInitServiceOutput } from 'shared/src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is RestoreInitServiceInput {
@@ -11,7 +14,7 @@ function validate(body: any): body is RestoreInitServiceInput {
   return true;
 }
 
-export async function init(
+export async function initRestore(
   req: Request,
   res: Response<HTTPError | RestoreInitServiceOutput>
 ) {

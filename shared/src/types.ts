@@ -5,6 +5,7 @@ export interface Integration {
   restoreWebhook: string;
   resetConfirmationWebhook: string;
   resetCredentialsWebhook: string;
+  resetUploadPage: string;
 }
 
 export type Failable<T = Record<string, unknown>> =
@@ -58,5 +59,35 @@ export interface RestoreUploadServiceInput {
 
 export interface RestoreUploadServerInput {
   EACRestoreToken: string;
+  apiKey: string;
+}
+
+export interface ResetInitServiceInput {
+  email: string;
+}
+
+export interface RestoreInitServerOutput {
+  uploadUrl: string;
+}
+
+export interface ResetConfirmServiceInput {
+  SVCResetToken: string;
+}
+
+export interface ResetConfirmServerOutput {
+  EACResetToken: string;
+}
+
+export interface ResetUploadServiceInput {
+  base64Image: string;
+  SVCResetToken: string;
+}
+
+export interface ResetUploadServiceOutput {
+  EACResetToken: string;
+}
+
+export interface ResetUploadServerInput {
+  EACResetToken: string;
   apiKey: string;
 }

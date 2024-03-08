@@ -13,7 +13,7 @@ jest.mock('knex', () => jest.fn(() => mockKnex));
 import express, { Response } from 'express';
 import request from 'supertest';
 import { integrationAuth } from '@middlewares/integrationAuth';
-import { expectResolvedValueEqual, expectResolvedValueMatch } from '../utils';
+import { expectResolved } from '../utils';
 
 describe('Integration Auth Middleware', () => {
   const app = express();
@@ -59,7 +59,7 @@ describe('Integration Auth Middleware', () => {
       apiKey: 'wrong',
     });
     expect(mockQueryBuilder.first).toHaveBeenCalled();
-    expectResolvedValueEqual(mockQueryBuilder.first, undefined);
+    expectResolved(mockQueryBuilder.first).toBeUndefined();
     expect(controllerSpy).not.toHaveBeenCalled();
   });
 
@@ -77,8 +77,16 @@ describe('Integration Auth Middleware', () => {
       apiKey: 'wrong',
     });
     expect(mockQueryBuilder.first).toHaveBeenCalled();
-    expectResolvedValueEqual(mockQueryBuilder.first, undefined);
+    expectResolved(mockQueryBuilder.first).toBeUndefined();
     expect(controllerSpy).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 if integrationId is not a number', async () => {
+    const response = await request(app)
+      .get('/undefined')
+      .set('Authorization', `Bearer ${validIntegration.apiKey}`);
+    expect(controllerSpy).not.toHaveBeenCalled();
+    expect(response.badRequest);
   });
 
   it('should return 500 if anything throws', async () => {
@@ -96,7 +104,7 @@ describe('Integration Auth Middleware', () => {
     await request(app)
       .get(`/${validIntegration.id}`)
       .set('Authorization', `Bearer ${validIntegration.apiKey}`);
-    expectResolvedValueMatch(mockQueryBuilder.first, validIntegration);
+    expectResolved(mockQueryBuilder.first).toMatchObject(validIntegration);
     expect(controllerSpy.mock.calls[0][0]['integration']).toMatchObject(
       validIntegration
     );
