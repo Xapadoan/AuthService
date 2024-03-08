@@ -1,0 +1,36 @@
+name: Tests - Server
+run-name: Testing Server package
+
+on:
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+      - synchronize
+    branches:
+      - dev
+    paths:
+      - 'server/**'
+      - 'shared/**'
+      - '.github/workflows/tests-server.yml'
+      - 'package.json'
+
+jobs:
+  tests:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Setup
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        run: npm i && npm -w server i
+      - name: Run tests
+        run: cd server && ../node_modules/.bin/jest
+        env:
+          AUTHSERVICE_HOST: 'http://localhost:8080'
+          AUTHSERVICE_INTEGRATION_ID: 1,
+          AUTHSERVICE_INTEGRATION_API_KEY: 'dummy-apikey'
+        
