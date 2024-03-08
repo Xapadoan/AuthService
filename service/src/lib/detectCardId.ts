@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Failable, handleResponse } from 'authservice-shared';
+import { Failable, handleResponse } from '@authservice/shared';
 
 const { OCRSPACE_URL, OCRSPACE_API_KEY } = process.env;
 

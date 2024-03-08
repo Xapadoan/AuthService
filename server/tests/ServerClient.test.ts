@@ -21,7 +21,7 @@ jest.mock('@shared/lib/RedisClient');
 
 import { ServerClient } from '../src/ServerClient';
 import { expectResolvedValueEqual, expectResolvedValueMatch } from './utils';
-import { RedisClient } from 'authservice-shared';
+import { RedisClient } from '@authservice/shared';
 
 const {
   AUTHSERVICE_SERVICE_HOST,

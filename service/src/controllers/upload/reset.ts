@@ -5,7 +5,7 @@ import {
   ResetUploadServiceInput,
   ResetUploadServiceOutput,
   handleResponse,
-} from 'authservice-shared';
+} from '@authservice/shared';
 import { redisClient } from '@lib/redisClient';
 import { User } from '@lib/types';
 import knex from '@data';

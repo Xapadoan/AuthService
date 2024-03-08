@@ -1,5 +1,5 @@
 {
-  "name": "authservice-shared",
+  "name": "@authservice/shared",
   "version": "0.0.1",
   "description": "Shares stuff inside authservice",
   "main": "src/index.ts",

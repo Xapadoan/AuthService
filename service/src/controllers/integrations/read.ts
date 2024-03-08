@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { HTTPError, Integration } from 'authservice-shared';
+import { HTTPError, Integration } from '@authservice/shared';
 
 export async function read(
   req: Request,

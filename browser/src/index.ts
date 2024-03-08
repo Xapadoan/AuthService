@@ -6,7 +6,7 @@ import {
   ResetUploadServiceInput,
   RestoreInitServerOutput,
   RestoreUploadServiceInput,
-} from 'authservice-shared';
+} from '@authservice/shared';
 
 export async function initRegister(input: string | URL, email: string) {
   const body: RegisterInitServerOutput = await fetch(input, {
