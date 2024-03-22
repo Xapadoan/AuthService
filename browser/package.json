@@ -13,7 +13,6 @@
     "parcel": "^2.11.0"
   },
   "scripts": {
-    "dev": "parcel htmlExample/index.html",
     "build": "parcel build src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
