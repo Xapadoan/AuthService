@@ -62,6 +62,8 @@ export async function resetUpload(
         sessionId,
       }),
     }).then(handleResponse);
+    redisClient.del(`reset:${SVCResetToken}`);
+    redisClient.del(`reset:${userId}`);
     return res.json({ EACResetToken });
   } catch (error) {
     console.error('Reset upload failed: ', error);
