@@ -9,9 +9,13 @@ import {
   RegisterUploadServerInput,
   ResetInitServiceInput,
   ResetUploadServerInput,
+  RegisterSessionSetupInput,
   RestoreInitServiceInput,
   RestoreInitServiceOutput,
   RestoreUploadServerInput,
+  RestoreSessionSetupInput,
+  ResetSessionSetupInput,
+  SessionSetupServerOutput,
 } from '@authservice/shared';
 
 const {
@@ -78,29 +82,43 @@ export class ServerClient {
     return { success: true };
   }
 
-  public async registerSetupSession(EACRegisterToken: string) {
-    return this.setupSession(`register:${EACRegisterToken}`);
+  public async registerSetupSession({
+    userId,
+    EACRegisterToken,
+  }: RegisterSessionSetupInput) {
+    return this.setupSession(userId, `register:${EACRegisterToken}`);
   }
 
-  public async restoreSetupSession(EACRestoreToken: string) {
-    return this.setupSession(`restore:${EACRestoreToken}`);
+  public async restoreSetupSession({
+    userId,
+    EACRestoreToken,
+  }: RestoreSessionSetupInput) {
+    return this.setupSession(userId, `restore:${EACRestoreToken}`);
   }
 
-  public async resetSetupSession(EACResetToken: string) {
-    return this.setupSession(`reset:${EACResetToken}`);
+  public async resetSetupSession({
+    userId,
+    EACResetToken,
+  }: ResetSessionSetupInput) {
+    return this.setupSession(userId, `reset:${EACResetToken}`);
   }
 
   private async setupSession(
+    userId: string,
     key: string
-  ): Promise<Failable<{ sessionId: string; expiresIn: number }>> {
-    const apiKey = await this.redis.get(key);
-    if (!apiKey) {
+  ): Promise<Failable<SessionSetupServerOutput>> {
+    const sessionId = await this.redis.get(key);
+    if (!sessionId) {
       return { success: false, error: 'Not found' };
     }
-    const sessionId = uuid();
-    await this.redis.set(`session:${sessionId}`, apiKey, this.sessionDuration);
+    await this.redis.set(`session:${sessionId}`, userId, this.sessionDuration);
     await this.redis.del(key);
-    return { success: true, sessionId, expiresIn: this.sessionDuration };
+    return {
+      success: true,
+      sessionId: sessionId,
+      maxAge: this.sessionDuration * 1000,
+    };
+  }
   }
 
   public async initRegister({ email }: RegisterInitServiceInput) {

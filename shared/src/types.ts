@@ -38,6 +38,10 @@ export interface RegisterUploadServerInput {
 }
 
 export interface RestoreInitServiceInput {
+export type RegisterSessionSetupInput = {
+  userId: string;
+  EACRegisterToken: string;
+};
   email: string;
 }
 
@@ -61,6 +65,10 @@ export interface RestoreUploadServerInput {
   EACRestoreToken: string;
   apiKey: string;
 }
+export type RestoreSessionSetupInput = {
+  userId: string;
+  EACRestoreToken: string;
+};
 
 export interface ResetInitServiceInput {
   email: string;
@@ -91,3 +99,12 @@ export interface ResetUploadServerInput {
   EACResetToken: string;
   apiKey: string;
 }
+export type ResetSessionSetupInput = {
+  userId: string;
+  EACResetToken: string;
+};
+
+export type SessionSetupServerOutput = {
+  sessionId: string;
+  maxAge: number;
+};

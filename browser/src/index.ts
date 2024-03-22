@@ -4,12 +4,22 @@ import {
   RegisterInitServerOutput,
   RegisterUploadServiceInput,
   ResetUploadServiceInput,
+  RegisterSessionSetupInput,
   RestoreInitServerOutput,
   RestoreUploadServiceInput,
+  RestoreSessionSetupInput,
+  ResetSessionSetupInput,
+  SessionSetupServerOutput,
 } from '@authservice/shared';
 
 export async function initRegister(input: string | URL, email: string) {
   const body: RegisterInitServerOutput = await fetch(input, {
+export {
+  RegisterSessionSetupInput,
+  RestoreSessionSetupInput,
+  ResetSessionSetupInput,
+  SessionSetupServerOutput,
+};
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
