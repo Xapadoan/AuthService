@@ -2,9 +2,10 @@
   "name": "@authservice/server",
   "version": "0.0.1",
   "description": "The lib that should run on the server",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "tsup src/index.ts --dts",
     "test": "jest"
   },
   "repository": {
