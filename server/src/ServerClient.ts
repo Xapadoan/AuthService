@@ -6,14 +6,17 @@ import {
   RedisClient,
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
+  RegisterInitServerOutput,
   RegisterUploadServerInput,
-  ResetInitServiceInput,
-  ResetUploadServerInput,
   RegisterSessionSetupInput,
   RestoreInitServiceInput,
+  RestoreInitServerOutput,
   RestoreInitServiceOutput,
   RestoreUploadServerInput,
   RestoreSessionSetupInput,
+  ResetInitServiceInput,
+  ResetInitServerOutput,
+  ResetUploadServerInput,
   ResetSessionSetupInput,
   SessionSetupServerOutput,
 } from '@authservice/shared';
@@ -121,7 +124,9 @@ export class ServerClient {
   }
   }
 
-  public async initRegister({ email }: RegisterInitServiceInput) {
+  public async initRegister({
+    email,
+  }: RegisterInitServiceInput): Promise<RegisterInitServerOutput | undefined> {
     try {
       const EACRegisterToken = uuid();
       await this.redis.set(
@@ -144,7 +149,9 @@ export class ServerClient {
     }
   }
 
-  public async initRestore({ email }: RestoreInitServiceInput) {
+  public async initRestore({
+    email,
+  }: RestoreInitServiceInput): Promise<RestoreInitServerOutput | undefined> {
     try {
       const EACRestoreToken = uuid();
       await this.redis.set(
@@ -167,7 +174,9 @@ export class ServerClient {
     }
   }
 
-  public async initReset({ email }: ResetInitServiceInput) {
+  public async initReset({
+    email,
+  }: ResetInitServiceInput): Promise<ResetInitServerOutput | undefined> {
     try {
       await this.fetchService<Failable>('reset', {
         method: 'POST',
