@@ -45,8 +45,6 @@ export async function restoreUpload(
     if (!cardIdDetection.success) {
       return res.status(422).json({ error: cardIdDetection.error });
     }
-    console.log('User: ', user.cardId);
-    console.log('Detected: ', cardIdDetection.id);
     if (user.cardId !== cardIdDetection.id) {
       return res.status(403).json({ error: 'Wrong card' });
     }
