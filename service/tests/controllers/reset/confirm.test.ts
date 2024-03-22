@@ -107,7 +107,8 @@ describe('Reset Confirm Controller', () => {
     });
     expect(mockSet).toHaveBeenCalledWith(
       `reset:${validUserJoinIntegration.id}`,
-      'EACResetToken'
+      'EACResetToken',
+      600
     );
     expect(response.redirect);
     expect(response.headers['location']).toEqual(

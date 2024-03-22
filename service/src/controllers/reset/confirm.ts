@@ -37,7 +37,7 @@ export async function confirm(req: Request, res: Response) {
     const { EACResetToken } = await fetch(user.resetConfirmationWebhook, {
       method: 'POST',
     }).then((res) => handleResponse<ResetConfirmServerOutput>(res));
-    await redisClient.set(`reset:${userId}`, EACResetToken);
+    await redisClient.set(`reset:${userId}`, EACResetToken, 60 * 10);
     return res.redirect(
       307,
       `${user.resetUploadPage}?SVCResetToken=${SVCResetToken}`
