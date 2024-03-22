@@ -122,6 +122,13 @@ export class ServerClient {
       maxAge: this.sessionDuration * 1000,
     };
   }
+
+  public async readSession(sessionId: string) {
+    return this.redis.get(`session:${sessionId}`);
+  }
+
+  public async deleteSession(sessionId: string) {
+    return this.redis.del(`session:${sessionId}`);
   }
 
   public async initRegister({

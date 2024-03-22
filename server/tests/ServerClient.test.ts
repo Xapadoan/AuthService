@@ -615,3 +615,30 @@ describe('Server Client, On Reset Confirm', () => {
     expect(result).toEqual('mocked-uuid');
   });
 });
+
+describe('Server Client, Read / Delete Session', () => {
+  const getSpy = jest.spyOn(RedisClient.prototype, 'get');
+  const delSpy = jest.spyOn(RedisClient.prototype, 'del');
+  let client: ServerClient;
+
+  beforeAll(async () => {
+    client = await ServerClient.init();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
+    jest.resetModules();
+  });
+
+  it('should be able to read session', async () => {
+    client.readSession('token');
+    expect(getSpy).toHaveBeenCalledWith('session:token');
+  });
+
+  it('should be able to delete a session', async () => {
+    client.deleteSession('token');
+    expect(delSpy).toHaveBeenCalledWith('session:token');
+  });
+});
