@@ -48,14 +48,14 @@ export async function registerUpload(
     await knex('users')
       .update({ cardId: String(cardIdDetection.id) })
       .where({ id: userId });
-    const apiKey = uuid();
+    const sessionId = uuid();
     await fetch(user.registerWebhook, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        apiKey,
+        sessionId,
         EACRegisterToken,
       }),
     }).then(handleResponse);

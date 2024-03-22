@@ -118,7 +118,7 @@ describe('Register Upload Controller', () => {
     expect(mockFetch.mock.lastCall[1]).toMatchObject({
       method: 'POST',
       body: JSON.stringify({
-        apiKey: 'uuid-mocked',
+        sessionId: 'uuid-mocked',
         EACRegisterToken: validPayload.EACRegisterToken,
       }),
     });

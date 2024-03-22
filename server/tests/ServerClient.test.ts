@@ -55,7 +55,7 @@ describe('ServerClient Init', () => {
   });
 
   it('should allow default config to be overridden', async () => {
-    let client = await ServerClient.init({ apiKey: 'test-api-key' });
+    let client = await ServerClient.init({ sessionId: 'test-api-key' });
     let expectedBaseUrl = `${AUTHSERVICE_SERVICE_HOST}/integrations/${AUTHSERVICE_INTEGRATION_ID}`;
     expect(mockFetch).toHaveBeenCalledWith(expectedBaseUrl, {
       method: 'GET',
@@ -81,7 +81,7 @@ describe('ServerClient Init', () => {
     expect(client.integration).toMatchObject(integration);
     client = await ServerClient.init({
       integrationId: 3,
-      apiKey: 'test-api-key',
+      sessionId: 'test-api-key',
     });
     expectedBaseUrl = `${AUTHSERVICE_SERVICE_HOST}/integrations/3`;
     expect(mockFetch).toHaveBeenCalledWith(expectedBaseUrl, {
@@ -296,13 +296,13 @@ describe('ServerClient On Register Upload', () => {
     getSpy.mockResolvedValueOnce('pending');
     const result = await client.onRegisterUpload({
       EACRegisterToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('register:token');
     expectResolvedValueEqual(getSpy, 'pending');
     expect(setSpy).toHaveBeenCalledWith(
       'register:token',
-      'apiKey',
+      'sessionId',
       client.tmpStorageDuration
     );
     expect(result).toMatchObject({ success: true });
@@ -312,7 +312,7 @@ describe('ServerClient On Register Upload', () => {
     getSpy.mockResolvedValueOnce(null);
     const result = await client.onRegisterUpload({
       EACRegisterToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('register:token');
     expectResolvedValueEqual(getSpy, null);
@@ -341,13 +341,13 @@ describe('Server Client, On Restore Upload', () => {
     getSpy.mockResolvedValueOnce('pending');
     const result = await client.onRestoreUpload({
       EACRestoreToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('restore:token');
     expectResolvedValueEqual(getSpy, 'pending');
     expect(setSpy).toHaveBeenCalledWith(
       'restore:token',
-      'apiKey',
+      'sessionId',
       client.tmpStorageDuration
     );
     expect(result).toMatchObject({ success: true });
@@ -357,7 +357,7 @@ describe('Server Client, On Restore Upload', () => {
     getSpy.mockResolvedValueOnce(null);
     const result = await client.onRestoreUpload({
       EACRestoreToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('restore:token');
     expectResolvedValueEqual(getSpy, null);
@@ -369,7 +369,7 @@ describe('Server Client, On Restore Upload', () => {
     getSpy.mockResolvedValueOnce('not pending');
     const result = await client.onRestoreUpload({
       EACRestoreToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('restore:token');
     expectResolvedValueEqual(getSpy, 'not pending');
@@ -398,13 +398,13 @@ describe('Server Client, On Reset Upload', () => {
     getSpy.mockResolvedValueOnce('pending');
     const result = await client.onResetUpload({
       EACResetToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('reset:token');
     expectResolvedValueEqual(getSpy, 'pending');
     expect(setSpy).toHaveBeenCalledWith(
       'reset:token',
-      'apiKey',
+      'sessionId',
       client.tmpStorageDuration
     );
     expect(result).toMatchObject({ success: true });
@@ -414,7 +414,7 @@ describe('Server Client, On Reset Upload', () => {
     getSpy.mockResolvedValueOnce(null);
     const result = await client.onResetUpload({
       EACResetToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('reset:token');
     expectResolvedValueEqual(getSpy, null);
@@ -426,7 +426,7 @@ describe('Server Client, On Reset Upload', () => {
     getSpy.mockResolvedValueOnce('not pending');
     const result = await client.onResetUpload({
       EACResetToken: 'token',
-      apiKey: 'apiKey',
+      sessionId: 'sessionId',
     });
     expect(getSpy).toHaveBeenCalledWith('reset:token');
     expectResolvedValueEqual(getSpy, 'not pending');

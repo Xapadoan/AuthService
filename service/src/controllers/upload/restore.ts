@@ -50,7 +50,7 @@ export async function restoreUpload(
     if (user.cardId !== cardIdDetection.id) {
       return res.status(403).json({ error: 'Wrong card' });
     }
-    const apiKey = uuid();
+    const sessionId = uuid();
     await fetch(user.restoreWebhook, {
       method: 'POST',
       headers: {
@@ -58,7 +58,7 @@ export async function restoreUpload(
       },
       body: JSON.stringify({
         EACRestoreToken,
-        apiKey,
+        sessionId,
       }),
     }).then(handleResponse);
     await redisClient.del(`restore:${SVCRestoreToken}`);

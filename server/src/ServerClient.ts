@@ -45,16 +45,16 @@ export class ServerClient {
 
   public async onRegisterUpload({
     EACRegisterToken,
-    apiKey,
+    sessionId,
   }: RegisterUploadServerInput) {
-    return this.replaceTmp(`register:${EACRegisterToken}`, apiKey);
+    return this.replaceTmp(`register:${EACRegisterToken}`, sessionId);
   }
 
   public async onRestoreUpload({
     EACRestoreToken,
-    apiKey,
+    sessionId,
   }: RestoreUploadServerInput) {
-    return this.replaceTmp(`restore:${EACRestoreToken}`, apiKey);
+    return this.replaceTmp(`restore:${EACRestoreToken}`, sessionId);
   }
 
   public async onResetConfirm() {
@@ -69,9 +69,9 @@ export class ServerClient {
 
   public async onResetUpload({
     EACResetToken,
-    apiKey,
+    sessionId,
   }: ResetUploadServerInput) {
-    return this.replaceTmp(`reset:${EACResetToken}`, apiKey);
+    return this.replaceTmp(`reset:${EACResetToken}`, sessionId);
   }
 
   private async replaceTmp(key: string, value: string): Promise<Failable> {

@@ -129,7 +129,7 @@ describe('Restore Upload Controller', () => {
         },
         body: JSON.stringify({
           EACRestoreToken: validPayload.EACRestoreToken,
-          apiKey: 'uuid-mocked',
+          sessionId: 'uuid-mocked',
         }),
       }
     );
