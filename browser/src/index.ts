@@ -1,13 +1,18 @@
-import {
-  Failable,
-  handleResponse,
+import type {
   RegisterInitServerOutput,
+  RegisterInitServiceInput,
   RegisterUploadServiceInput,
-  ResetUploadServiceInput,
+  RegisterUploadServiceOutput,
   RegisterSessionSetupInput,
+  RestoreInitServiceInput,
   RestoreInitServerOutput,
   RestoreUploadServiceInput,
+  RestoreUploadServiceOutput,
   RestoreSessionSetupInput,
+  ResetInitServiceInput,
+  ResetInitServerOutput,
+  ResetUploadServiceInput,
+  ResetUploadServiceOutput,
   ResetSessionSetupInput,
   SessionSetupServerOutput,
 } from '@authservice/shared';
@@ -15,8 +20,20 @@ import {
 export async function initRegister(input: string | URL, email: string) {
   const body: RegisterInitServerOutput = await fetch(input, {
 export {
+  RegisterInitServerOutput,
+  RegisterInitServiceInput,
+  RegisterUploadServiceInput,
+  RegisterUploadServiceOutput,
   RegisterSessionSetupInput,
+  RestoreInitServiceInput,
+  RestoreInitServerOutput,
+  RestoreUploadServiceInput,
+  RestoreUploadServiceOutput,
   RestoreSessionSetupInput,
+  ResetInitServiceInput,
+  ResetInitServerOutput,
+  ResetUploadServiceInput,
+  ResetUploadServiceOutput,
   ResetSessionSetupInput,
   SessionSetupServerOutput,
 };
