@@ -42,7 +42,7 @@ async function sendConfirmationEmail({
     text: 'Hello World !',
     html: `
       <h1>Reset your cardId</h1>
-      <p>Click 
+      <p>Click
       <a href=${resetLink}>here</a>
        to confirm and start the reset process. If the link doesn't work copy paste
        the following in a new tab:<br/>
