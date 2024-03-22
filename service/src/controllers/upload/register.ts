@@ -29,7 +29,7 @@ export async function registerUpload(
       return res.status(400).json({ error: 'Bad Body' });
     }
     const { EACRegisterToken, SVCRegisterToken, base64Image } = req.body;
-    const userId = await redisClient.get(SVCRegisterToken);
+    const userId = await redisClient.get(`register:${SVCRegisterToken}`);
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -59,7 +59,7 @@ export async function registerUpload(
         EACRegisterToken,
       }),
     }).then(handleResponse);
-    await redisClient.del(SVCRegisterToken);
+    await redisClient.del(`register:${SVCRegisterToken}`);
     return res.json({ success: true });
   } catch (error) {
     console.log('Register upload failed: ', error);

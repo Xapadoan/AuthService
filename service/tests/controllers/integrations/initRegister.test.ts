@@ -83,7 +83,7 @@ describe('Register Init Controller', () => {
     expect(mockUuid).toHaveReturnedWith('uuid-mocked');
     expectResolved(mockInsert).toEqual(1);
     expect(mockSet).toHaveBeenCalled();
-    expect(mockSet).toHaveBeenCalledWith('uuid-mocked', '1', 600);
+    expect(mockSet).toHaveBeenCalledWith('register:uuid-mocked', '1', 600);
     expect(response.status).toEqual(201);
     expect(response.body).toMatchObject({ SVCRegisterToken: 'uuid-mocked' });
   });

@@ -32,7 +32,7 @@ export async function initRegister(
       cardId: 'pending',
     });
     const SVCRegisterToken = uuid();
-    await redisClient.set(SVCRegisterToken, String(id), 10 * 60);
+    await redisClient.set(`register:${SVCRegisterToken}`, String(id), 10 * 60);
     return res.status(201).json({ SVCRegisterToken });
   } catch (error) {
     console.log('Error: ', error);
