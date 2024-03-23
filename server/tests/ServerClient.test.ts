@@ -55,7 +55,7 @@ describe('ServerClient Init', () => {
   });
 
   it('should allow default config to be overridden', async () => {
-    let client = await ServerClient.init({ sessionId: 'test-api-key' });
+    let client = await ServerClient.init({ apiKey: 'test-api-key' });
     let expectedBaseUrl = `${AUTHSERVICE_SERVICE_HOST}/integrations/${AUTHSERVICE_INTEGRATION_ID}`;
     expect(mockFetch).toHaveBeenCalledWith(expectedBaseUrl, {
       method: 'GET',
@@ -81,7 +81,7 @@ describe('ServerClient Init', () => {
     expect(client.integration).toMatchObject(integration);
     client = await ServerClient.init({
       integrationId: 3,
-      sessionId: 'test-api-key',
+      apiKey: 'test-api-key',
     });
     expectedBaseUrl = `${AUTHSERVICE_SERVICE_HOST}/integrations/3`;
     expect(mockFetch).toHaveBeenCalledWith(expectedBaseUrl, {
