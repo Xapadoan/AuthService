@@ -9,6 +9,8 @@ export async function up(knex: Knex) {
       table.string('restoreWebhook').notNullable();
       table.string('resetConfirmationWebhook').notNullable();
       table.string('resetCredentialsWebhook').notNullable();
+      table.dateTime('createdAt').notNullable().defaultTo(knex.raw('NOW()'));
+      table.dateTime('updatedAt').notNullable().defaultTo(knex.raw('NOW()'));
     })
     .createTable('users', (table) => {
       table.bigIncrements('id', { primaryKey: true }).unsigned();
@@ -22,7 +24,8 @@ export async function up(knex: Knex) {
         .onDelete('cascade');
       table.string('cardId').notNullable();
       table.string('email').notNullable();
-      table.dateTime('created_at').notNullable().defaultTo(knex.raw('NOW()'));
+      table.dateTime('createdAt').notNullable().defaultTo(knex.raw('NOW()'));
+      table.dateTime('updatedAt').notNullable().defaultTo(knex.raw('NOW()'));
     });
 }
 

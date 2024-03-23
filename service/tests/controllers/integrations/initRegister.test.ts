@@ -1,14 +1,22 @@
+import { validIntegration, expectResolved, validUser } from '../../utils';
 const mockSet = jest.fn();
 jest.mock('@lib/redisClient', () => ({ redisClient: { set: mockSet } }));
 const mockUuid = jest.fn(() => 'uuid-mocked');
 jest.mock('uuid', () => ({ v4: mockUuid }));
-const mockInsert = jest.fn().mockResolvedValue(1);
-const mockKnex = jest.fn(() => ({ insert: mockInsert }));
+const mockSelect = jest.fn().mockReturnThis();
+const mockWhere = jest.fn().mockReturnThis();
+const mockFirst = jest.fn().mockResolvedValue(undefined);
+const mockInsert = jest.fn().mockResolvedValue([1]);
+const mockKnex = jest.fn(() => ({
+  select: mockSelect,
+  where: mockWhere,
+  first: mockFirst,
+  insert: mockInsert,
+}));
 jest.mock('knex', () => jest.fn(() => mockKnex));
 
 import { initRegister } from '@controllers/integrations/initRegister';
 import express, { NextFunction, Request } from 'express';
-import { validIntegration, expectResolved } from '../../utils';
 import request from 'supertest';
 import '@lib/http';
 
@@ -52,6 +60,22 @@ describe('Register Init Controller', () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
+  it('should return 409 if user already exists for this integration', async () => {
+    mockFirst.mockResolvedValueOnce(validUser);
+    const response = await request(app)
+      .post('/')
+      .send({ email: validUser.email });
+    expect(mockAuthMiddleware).toHaveBeenCalled();
+    expect(mockKnex).toHaveBeenCalledWith('users');
+    expect(mockSelect).toHaveBeenCalled();
+    expect(mockWhere).toHaveBeenCalledWith({
+      email: validUser.email,
+      integrationId: validIntegration.id,
+    });
+    expectResolved(mockFirst).toMatchObject(validUser);
+    expect(response.statusCode).toEqual(409);
+  });
+
   it('should return 500 if anything throws', async () => {
     mockSet.mockImplementationOnce(() => {
       throw new Error('Intentional set error');
@@ -59,7 +83,11 @@ describe('Register Init Controller', () => {
     mockInsert.mockImplementationOnce(() => {
       throw new Error('Intentional insert error');
     });
+    mockSelect.mockImplementationOnce(() => {
+      throw new Error('Intentional select error');
+    });
     const responses = await Promise.all([
+      request(app).post('/').send({ email: 'an email' }),
       request(app).post('/').send({ email: 'an email' }),
       request(app).post('/').send({ email: 'an email' }),
     ]);
@@ -68,22 +96,30 @@ describe('Register Init Controller', () => {
     });
   });
 
-  it('should do many stuff when ok', async () => {
-    const response = await request(app).post('/').send({ email: 'an email' });
+  test('best case scenario', async () => {
+    const response = await request(app)
+      .post('/')
+      .send({ email: validUser.email });
     expect(mockAuthMiddleware).toHaveBeenCalled();
-    expect(mockKnex).toHaveBeenCalled();
+    expect(mockKnex).toHaveBeenCalledTimes(2);
     expect(mockKnex).toHaveBeenCalledWith('users');
+    expect(mockSelect).toHaveBeenCalled();
+    expect(mockWhere).toHaveBeenCalledWith({
+      email: validUser.email,
+      integrationId: validIntegration.id,
+    });
+    expectResolved(mockFirst).toBeUndefined();
     expect(mockInsert).toHaveBeenCalled();
     expect(mockInsert).toHaveBeenCalledWith({
       integrationId: validIntegration.id,
-      email: 'an email',
+      email: validUser.email,
       cardId: 'pending',
     });
+    expectResolved(mockInsert).toEqual([1]);
     expect(mockUuid).toHaveBeenCalled();
     expect(mockUuid).toHaveReturnedWith('uuid-mocked');
-    expectResolved(mockInsert).toEqual(1);
     expect(mockSet).toHaveBeenCalled();
-    expect(mockSet).toHaveBeenCalledWith('uuid-mocked', '1', 600);
+    expect(mockSet).toHaveBeenCalledWith('register:uuid-mocked', '1', 600);
     expect(response.status).toEqual(201);
     expect(response.body).toMatchObject({ SVCRegisterToken: 'uuid-mocked' });
   });

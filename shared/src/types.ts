@@ -12,82 +12,106 @@ export type Failable<T = Record<string, unknown>> =
   | { success: false; error: string }
   | ({ success: true } & T);
 
-export interface RegisterInitServiceInput {
+export type RegisterInitServiceInput = {
   email: string;
-}
+};
 
-export interface RegisterInitServiceOutput {
+export type RegisterInitServiceOutput = {
   SVCRegisterToken: string;
-}
+};
 
-export interface RegisterInitServerOutput {
+export type RegisterInitServerOutput = {
   SVCRegisterToken: string;
   EACRegisterToken: string;
   uploadUrl: string;
-}
+};
 
-export interface RegisterUploadServiceInput {
+export type RegisterUploadServiceInput = {
   base64Image: string;
   SVCRegisterToken: string;
   EACRegisterToken: string;
-}
+};
 
-export interface RegisterUploadServerInput {
+export type RegisterUploadServiceOutput = Failable;
+
+export type RegisterUploadServerInput = {
   EACRegisterToken: string;
-  apiKey: string;
-}
+  sessionId: string;
+};
 
-export interface RestoreInitServiceInput {
+export type RegisterSessionSetupInput = {
+  userId: string;
+  EACRegisterToken: string;
+};
+
+export type RestoreInitServiceInput = {
   email: string;
-}
+};
 
-export interface RestoreInitServiceOutput {
+export type RestoreInitServiceOutput = {
   SVCRestoreToken: string;
-}
+};
 
-export interface RestoreInitServerOutput {
+export type RestoreInitServerOutput = {
   SVCRestoreToken: string;
   EACRestoreToken: string;
   uploadUrl: string;
-}
+};
 
-export interface RestoreUploadServiceInput {
+export type RestoreUploadServiceInput = {
   base64Image: string;
   SVCRestoreToken: string;
   EACRestoreToken: string;
-}
+};
 
-export interface RestoreUploadServerInput {
+export type RestoreUploadServiceOutput = Failable;
+
+export type RestoreUploadServerInput = {
   EACRestoreToken: string;
-  apiKey: string;
-}
+  sessionId: string;
+};
 
-export interface ResetInitServiceInput {
+export type RestoreSessionSetupInput = {
+  userId: string;
+  EACRestoreToken: string;
+};
+
+export type ResetInitServiceInput = {
   email: string;
-}
+};
 
-export interface RestoreInitServerOutput {
+export type ResetInitServerOutput = {
   uploadUrl: string;
-}
+};
 
-export interface ResetConfirmServiceInput {
+export type ResetConfirmServiceInput = {
   SVCResetToken: string;
-}
+};
 
-export interface ResetConfirmServerOutput {
+export type ResetConfirmServerOutput = {
   EACResetToken: string;
-}
+};
 
-export interface ResetUploadServiceInput {
+export type ResetUploadServiceInput = {
   base64Image: string;
   SVCResetToken: string;
-}
+};
 
-export interface ResetUploadServiceOutput {
+export type ResetUploadServiceOutput = {
   EACResetToken: string;
-}
+};
 
-export interface ResetUploadServerInput {
+export type ResetUploadServerInput = {
   EACResetToken: string;
-  apiKey: string;
-}
+  sessionId: string;
+};
+
+export type ResetSessionSetupInput = {
+  userId: string;
+  EACResetToken: string;
+};
+
+export type SessionSetupServerOutput = {
+  sessionId: string;
+  maxAge: number;
+};

@@ -29,7 +29,7 @@ export async function registerUpload(
       return res.status(400).json({ error: 'Bad Body' });
     }
     const { EACRegisterToken, SVCRegisterToken, base64Image } = req.body;
-    const userId = await redisClient.get(SVCRegisterToken);
+    const userId = await redisClient.get(`register:${SVCRegisterToken}`);
     if (!userId) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -48,18 +48,18 @@ export async function registerUpload(
     await knex('users')
       .update({ cardId: String(cardIdDetection.id) })
       .where({ id: userId });
-    const apiKey = uuid();
+    const sessionId = uuid();
     await fetch(user.registerWebhook, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        apiKey,
+        sessionId,
         EACRegisterToken,
       }),
     }).then(handleResponse);
-    await redisClient.del(SVCRegisterToken);
+    await redisClient.del(`register:${SVCRegisterToken}`);
     return res.json({ success: true });
   } catch (error) {
     console.log('Register upload failed: ', error);
