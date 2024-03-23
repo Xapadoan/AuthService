@@ -1,7 +1,7 @@
 {
   "name": "@authservice/service",
   "version": "0.0.1",
-  "description": "The service itself",
+  "description": "The service implementation. Should run by itself.",
   "main": "src/index.ts",
   "scripts": {
     "dev": "NODE_ENV=local nodemon --delay 500ms src/index.ts",
