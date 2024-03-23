@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+  HTTPError,
   Integration,
   ResetConfirmServerOutput,
   ResetConfirmServiceInput,
@@ -16,7 +17,7 @@ function validate(query: any): query is ResetConfirmServiceInput {
   return true;
 }
 
-export async function confirm(req: Request, res: Response) {
+export async function confirm(req: Request, res: Response<HTTPError>) {
   try {
     if (!validate(req.query)) {
       return res.status(400).json({ error: 'Bad Body' });
