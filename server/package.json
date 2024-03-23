@@ -1,7 +1,7 @@
 {
   "name": "@authservice/server",
   "version": "0.0.1",
-  "description": "The lib that should run on the server",
+  "description": "The lib that should run on the server. Provide utils to make exchanges with the service easier.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
