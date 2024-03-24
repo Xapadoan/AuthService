@@ -15,10 +15,10 @@
     "type": "git",
     "url": "git+https://github.com/Xapadoan/AuthService.git"
   },
-  "author": "Xapadoan",
+  "author": "xapadoan",
   "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/Xapadoan/AuthService/issues"
   },
-  "homepage": "https://github.com/Xapadoan/AuthService#readme"
+  "homepage": "https://github.com/Xapadoan/AuthService/browser/README.md"
 }

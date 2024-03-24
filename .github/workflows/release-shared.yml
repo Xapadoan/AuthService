@@ -1,0 +1,32 @@
+name: Release - Shared
+run-name: Publish Shared package
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  test_and_publish:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Setup
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        run: npm i
+      - name: Run tests
+        run: npm -w shared run test
+      - name: Build shared package
+        run: rm -rf shared/dist && npm -w shared run build
+      - name: Publish to Npm
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: shared
+          access: public

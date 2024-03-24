@@ -1,0 +1,38 @@
+name: Release - Server
+run-name: Publish Server package
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  test_and_publish:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Setup
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        run: npm i
+      - name: Build shared package
+        run: rm -rf shared/dist && npm -w shared run build
+      - name: Run tests
+        run: npm -w server run test
+        env:
+          AUTHSERVICE_HOST: 'http://localhost:8080'
+          AUTHSERVICE_INTEGRATION_ID: 1,
+          AUTHSERVICE_INTEGRATION_API_KEY: 'dummy-apikey'
+      - name: Build server package
+        run: rm -rf server/dist && npm -w server run build
+      - name: Publish to Npm
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          package: server
+          access: public
