@@ -11,7 +11,7 @@
   "author": "Xapadoan",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "@authservice/shared": "file:../shared",
+    "@authservice/shared": "^0.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.4",
     "express": "^4.18.2",
