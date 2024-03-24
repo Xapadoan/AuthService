@@ -1,6 +1,6 @@
 {
   "name": "@authservice/browser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "The browser lib to be installed on the front-end",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
