@@ -3,14 +3,22 @@
   "version": "0.0.2",
   "description": "A package sharing types and common utils.",
   "main": "dist/index.js",
-	"types": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --dts",
     "test": "jest"
   },
-  "author": "Xapadoan",
-  "license": "GPL-3.0-or-later",
   "dependencies": {
     "redis": "^4.6.13"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xapadoan/AuthService.git"
+  },
+  "author": "xapadoan",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Xapadoan/AuthService/issues"
+  },
+  "homepage": "https://github.com/Xapadoan/AuthService/shared/README.md"
 }
