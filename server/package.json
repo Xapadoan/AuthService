@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/Xapadoan/AuthService#readme",
   "dependencies": {
-    "@authservice/shared": "file:../shared",
+    "@authservice/shared": "^0.0.2",
     "dotenv": "^16.4.5",
     "redis": "^4.6.13",
     "uuid": "^9.0.1"
