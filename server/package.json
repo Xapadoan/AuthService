@@ -8,20 +8,20 @@
     "build": "tsup src/index.ts --dts",
     "test": "jest"
   },
+  "dependencies": {
+    "@authservice/shared": "^0.0.2",
+    "dotenv": "^16.4.5",
+    "redis": "^4.6.13",
+    "uuid": "^9.0.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Xapadoan/AuthService.git"
   },
-  "author": "Xapadoan",
+  "author": "xapadoan",
   "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/Xapadoan/AuthService/issues"
   },
-  "homepage": "https://github.com/Xapadoan/AuthService#readme",
-  "dependencies": {
-    "@authservice/shared": "file:../shared",
-    "dotenv": "^16.4.5",
-    "redis": "^4.6.13",
-    "uuid": "^9.0.1"
-  }
+  "homepage": "https://github.com/Xapadoan/AuthService/server/README.md"
 }

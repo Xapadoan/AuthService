@@ -25,6 +25,6 @@ jobs:
         with:
           node-version: 20
       - name: Install Dependencies
-        run: npm i && npm -w shared i
+        run: npm i
       - name: Run tests
-        run: cd shared && ../node_modules/.bin/jest
+        run: npm -w shared run test

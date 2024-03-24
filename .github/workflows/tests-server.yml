@@ -26,11 +26,12 @@ jobs:
         with:
           node-version: 20
       - name: Install Dependencies
-        run: npm i && npm -w server i
+        run: npm i
+      - name: Build shared lib
+        run: rm -rf shared/dist && npm -w shared run build
       - name: Run tests
-        run: cd server && ../node_modules/.bin/jest
+        run: npm -w server run test
         env:
           AUTHSERVICE_HOST: 'http://localhost:8080'
           AUTHSERVICE_INTEGRATION_ID: 1,
           AUTHSERVICE_INTEGRATION_API_KEY: 'dummy-apikey'
-        

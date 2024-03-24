@@ -34,9 +34,11 @@ jobs:
         with:
           node-version: 20
       - name: Install Dependencies
-        run: npm i && npm -w service i
+        run: npm i
+      - name: Build shared lib
+        run: rm -rf shared/dist && npm -w shared run build
       - name: Run tests
-        run: cd service && ../node_modules/.bin/jest
+        run: npm -w service run test
         env:
           DB_HOST: 127.0.0.1
           DB_NAME: testdb
@@ -51,4 +53,3 @@ jobs:
           SMTP_PORT: 123
           SMTP_USER: smtpuser
           SMTP_PASS: smtppass
-
