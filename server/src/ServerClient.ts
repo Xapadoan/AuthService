@@ -6,12 +6,19 @@ import {
   RedisClient,
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
+  RegisterInitServerOutput,
   RegisterUploadServerInput,
-  ResetInitServiceInput,
-  ResetUploadServerInput,
+  RegisterSessionSetupInput,
   RestoreInitServiceInput,
+  RestoreInitServerOutput,
   RestoreInitServiceOutput,
   RestoreUploadServerInput,
+  RestoreSessionSetupInput,
+  ResetInitServiceInput,
+  ResetInitServerOutput,
+  ResetUploadServerInput,
+  ResetSessionSetupInput,
+  SessionSetupServerOutput,
 } from '@authservice/shared';
 
 const {
@@ -41,16 +48,16 @@ export class ServerClient {
 
   public async onRegisterUpload({
     EACRegisterToken,
-    apiKey,
+    sessionId,
   }: RegisterUploadServerInput) {
-    return this.replaceTmp(`register:${EACRegisterToken}`, apiKey);
+    return this.replaceTmp(`register:${EACRegisterToken}`, sessionId);
   }
 
   public async onRestoreUpload({
     EACRestoreToken,
-    apiKey,
+    sessionId,
   }: RestoreUploadServerInput) {
-    return this.replaceTmp(`restore:${EACRestoreToken}`, apiKey);
+    return this.replaceTmp(`restore:${EACRestoreToken}`, sessionId);
   }
 
   public async onResetConfirm() {
@@ -65,9 +72,9 @@ export class ServerClient {
 
   public async onResetUpload({
     EACResetToken,
-    apiKey,
+    sessionId,
   }: ResetUploadServerInput) {
-    return this.replaceTmp(`reset:${EACResetToken}`, apiKey);
+    return this.replaceTmp(`reset:${EACResetToken}`, sessionId);
   }
 
   private async replaceTmp(key: string, value: string): Promise<Failable> {
@@ -78,32 +85,55 @@ export class ServerClient {
     return { success: true };
   }
 
-  public async registerSetupSession(EACRegisterToken: string) {
-    return this.setupSession(`register:${EACRegisterToken}`);
+  public async registerSetupSession({
+    userId,
+    EACRegisterToken,
+  }: RegisterSessionSetupInput) {
+    return this.setupSession(userId, `register:${EACRegisterToken}`);
   }
 
-  public async restoreSetupSession(EACRestoreToken: string) {
-    return this.setupSession(`restore:${EACRestoreToken}`);
+  public async restoreSetupSession({
+    userId,
+    EACRestoreToken,
+  }: RestoreSessionSetupInput) {
+    return this.setupSession(userId, `restore:${EACRestoreToken}`);
   }
 
-  public async resetSetupSession(EACResetToken: string) {
-    return this.setupSession(`reset:${EACResetToken}`);
+  public async resetSetupSession({
+    userId,
+    EACResetToken,
+  }: ResetSessionSetupInput) {
+    return this.setupSession(userId, `reset:${EACResetToken}`);
   }
 
   private async setupSession(
+    userId: string,
     key: string
-  ): Promise<Failable<{ sessionId: string; expiresIn: number }>> {
-    const apiKey = await this.redis.get(key);
-    if (!apiKey) {
+  ): Promise<Failable<SessionSetupServerOutput>> {
+    const sessionId = await this.redis.get(key);
+    if (!sessionId) {
       return { success: false, error: 'Not found' };
     }
-    const sessionId = uuid();
-    await this.redis.set(`session:${sessionId}`, apiKey, this.sessionDuration);
+    await this.redis.set(`session:${sessionId}`, userId, this.sessionDuration);
     await this.redis.del(key);
-    return { success: true, sessionId, expiresIn: this.sessionDuration };
+    return {
+      success: true,
+      sessionId: sessionId,
+      maxAge: this.sessionDuration * 1000,
+    };
   }
 
-  public async initRegister({ email }: RegisterInitServiceInput) {
+  public async readSession(sessionId: string) {
+    return this.redis.get(`session:${sessionId}`);
+  }
+
+  public async deleteSession(sessionId: string) {
+    return this.redis.del(`session:${sessionId}`);
+  }
+
+  public async initRegister({
+    email,
+  }: RegisterInitServiceInput): Promise<RegisterInitServerOutput | undefined> {
     try {
       const EACRegisterToken = uuid();
       await this.redis.set(
@@ -126,7 +156,9 @@ export class ServerClient {
     }
   }
 
-  public async initRestore({ email }: RestoreInitServiceInput) {
+  public async initRestore({
+    email,
+  }: RestoreInitServiceInput): Promise<RestoreInitServerOutput | undefined> {
     try {
       const EACRestoreToken = uuid();
       await this.redis.set(
@@ -149,7 +181,9 @@ export class ServerClient {
     }
   }
 
-  public async initReset({ email }: ResetInitServiceInput) {
+  public async initReset({
+    email,
+  }: ResetInitServiceInput): Promise<ResetInitServerOutput | undefined> {
     try {
       await this.fetchService<Failable>('reset', {
         method: 'POST',

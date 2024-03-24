@@ -75,7 +75,9 @@ describe('Register Upload Controller', () => {
   it('should return 404 when SVCRegisterToken not found', async () => {
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
-    expect(mockGet).toHaveBeenCalledWith(validPayload.SVCRegisterToken);
+    expect(mockGet).toHaveBeenCalledWith(
+      `register:${validPayload.SVCRegisterToken}`
+    );
     expectResolved(mockGet).toBeNull();
     expect(response.notFound);
   });
@@ -116,7 +118,7 @@ describe('Register Upload Controller', () => {
     expect(mockFetch.mock.lastCall[1]).toMatchObject({
       method: 'POST',
       body: JSON.stringify({
-        apiKey: 'uuid-mocked',
+        sessionId: 'uuid-mocked',
         EACRegisterToken: validPayload.EACRegisterToken,
       }),
     });

@@ -84,9 +84,7 @@ describe('Restore Upload Controller', () => {
   it('should return 404 when SVCResetToken not found', async () => {
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
-    expect(mockGet).toHaveBeenCalledWith(
-      `reset:${validPayload.SVCResetToken}`
-    );
+    expect(mockGet).toHaveBeenCalledWith(`reset:${validPayload.SVCResetToken}`);
     expectResolved(mockGet).toBeNull();
     expect(response.notFound);
   });
@@ -95,9 +93,7 @@ describe('Restore Upload Controller', () => {
     mockGet.mockResolvedValueOnce(String(validUserJoinIntegration.id));
     mockGet.mockResolvedValueOnce(null);
     const response = await request(app).post('/').send(validPayload);
-    expect(mockGet).toHaveBeenCalledWith(
-      `reset:${validPayload.SVCResetToken}`
-    );
+    expect(mockGet).toHaveBeenCalledWith(`reset:${validPayload.SVCResetToken}`);
     expectNthResolved(mockGet, 1).toEqual(String(validUserJoinIntegration.id));
     expect(mockGet).toHaveBeenCalledWith(
       `reset:${validUserJoinIntegration.id}`
@@ -111,9 +107,7 @@ describe('Restore Upload Controller', () => {
     mockGet.mockResolvedValueOnce('EACResetToken');
     mockFirst.mockResolvedValueOnce(undefined);
     const response = await request(app).post('/').send(validPayload);
-    expect(mockGet).toHaveBeenCalledWith(
-      `reset:${validPayload.SVCResetToken}`
-    );
+    expect(mockGet).toHaveBeenCalledWith(`reset:${validPayload.SVCResetToken}`);
     expectNthResolved(mockGet, 1).toEqual(String(validUserJoinIntegration.id));
     expect(mockGet).toHaveBeenCalledWith(
       `reset:${validUserJoinIntegration.id}`

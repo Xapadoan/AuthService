@@ -51,7 +51,7 @@ export async function resetUpload(
     await knex('users')
       .update({ cardId: cardDetection.id })
       .where({ id: userId });
-    const apiKey = uuid();
+    const sessionId = uuid();
     await fetch(user.resetCredentialsWebhook, {
       method: 'POST',
       headers: {
@@ -59,9 +59,11 @@ export async function resetUpload(
       },
       body: JSON.stringify({
         EACResetToken,
-        apiKey,
+        sessionId,
       }),
     }).then(handleResponse);
+    redisClient.del(`reset:${SVCResetToken}`);
+    redisClient.del(`reset:${userId}`);
     return res.json({ EACResetToken });
   } catch (error) {
     console.error('Reset upload failed: ', error);

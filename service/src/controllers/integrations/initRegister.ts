@@ -7,6 +7,7 @@ import {
   RegisterInitServiceInput,
   RegisterInitServiceOutput,
 } from '@authservice/shared';
+import { User } from '@lib/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validate(body: any): body is RegisterInitServiceInput {
@@ -26,13 +27,20 @@ export async function initRegister(
       return res.status(400).json({ error: 'Bad Body' });
     }
     const { email } = req.body;
-    const id = await knex('users').insert({
+    const existingUser = await knex<User>('users')
+      .select('id')
+      .where({ email, integrationId: req.integration.id })
+      .first();
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists' });
+    }
+    const [id] = await knex('users').insert({
       integrationId: req.integration.id,
       email,
       cardId: 'pending',
     });
     const SVCRegisterToken = uuid();
-    await redisClient.set(SVCRegisterToken, String(id), 10 * 60);
+    await redisClient.set(`register:${SVCRegisterToken}`, String(id), 10 * 60);
     return res.status(201).json({ SVCRegisterToken });
   } catch (error) {
     console.log('Error: ', error);
