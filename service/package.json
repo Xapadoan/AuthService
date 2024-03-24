@@ -1,6 +1,6 @@
 {
   "name": "@authservice/service",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The service implementation. Should run by itself.",
   "main": "src/index.ts",
   "scripts": {
