@@ -20,6 +20,9 @@ jobs:
         run: npm i
       - name: Run tests
         run: npm -w shared run test
+        env:
+          REDIS_HOST: 'host'
+          REDIS_PORT: 123
       - name: Build shared package
         run: rm -rf shared/dist && npm -w shared run build
       - name: Publish to Npm
