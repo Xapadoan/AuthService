@@ -10,11 +10,14 @@ const mockCreateClient = jest.fn(() => ({
   connect: mockConnect,
   quit: mockQuit,
 }));
-jest.mock('redis', () => ({
+jest.mock('@redis/client', () => ({
   createClient: mockCreateClient,
 }));
 
+import 'dotenv/config';
 import { RedisClient } from '@lib/RedisClient';
+
+const { REDIS_HOST, REDIS_PORT } = process.env;
 
 describe('Redis Client', () => {
   afterEach(() => {
@@ -26,7 +29,12 @@ describe('Redis Client', () => {
   });
   it('should create a redis client', () => {
     const client = new RedisClient({ prefix: 'test' });
-    expect(mockCreateClient).toHaveBeenCalled();
+    expect(mockCreateClient).toHaveBeenCalledWith({
+      socket: {
+        host: String(REDIS_HOST),
+        port: Number(REDIS_PORT),
+      },
+    });
     expect(client.prefix).toEqual('test');
     expect(mockConnect).toHaveBeenCalled();
   });

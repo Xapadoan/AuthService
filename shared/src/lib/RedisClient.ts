@@ -1,4 +1,6 @@
-import { createClient } from 'redis';
+import { createClient } from '@redis/client';
+
+const { REDIS_HOST, REDIS_PORT } = process.env;
 
 export class RedisClient {
   private client;
@@ -6,7 +8,12 @@ export class RedisClient {
 
   constructor({ prefix }: { prefix: string }) {
     this.prefix = prefix;
-    this.client = createClient();
+    this.client = createClient({
+      socket: {
+        host: String(REDIS_HOST || 'localhost'),
+        port: Number(REDIS_PORT || 6379),
+      },
+    });
     this.client.connect();
   }
 
