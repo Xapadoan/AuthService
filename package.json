@@ -1,6 +1,6 @@
 {
   "name": "authservice",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An authentication service based on AI",
   "workspaces": [
     "service",
