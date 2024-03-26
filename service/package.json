@@ -2,14 +2,14 @@
   "name": "@authservice/service",
   "version": "0.0.4",
   "description": "The service implementation. Should run by itself.",
-  "main": "src/index.ts",
   "scripts": {
     "dev": "NODE_ENV=local nodemon --delay 500ms src/index.ts",
-    "build": "tsc --build",
+    "build": "tsc --build tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "NODE_ENV=production node dist/index.js",
     "test": "NODE_ENV=test jest"
   },
   "dependencies": {
-    "@authservice/shared": "^0.0.2",
+    "@authservice/shared": "^0.0.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.4",
     "express": "^4.18.2",
@@ -26,7 +26,8 @@
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.8",
     "nodemon": "^3.1.0",
-    "supertest": "^6.3.4"
+    "supertest": "^6.3.4",
+    "tsc-alias": "^1.8.8"
   },
   "repository": {
     "type": "git",

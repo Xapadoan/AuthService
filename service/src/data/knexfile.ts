@@ -11,14 +11,18 @@ const commonConfig: Knex.Config = {
     charset: 'utf8mb4',
   },
   migrations: {
-    directory: 'src/data/migrations',
+    directory: 'dist/data/migrations',
   },
 };
 
 export default {
   production: commonConfig,
   development: { ...commonConfig, debug: true },
-  local: { ...commonConfig, debug: true },
+  local: {
+    ...commonConfig,
+    migrations: { directory: 'src/data/migrations' },
+    debug: true,
+  },
   test: {
     ...commonConfig,
     migrations: {
