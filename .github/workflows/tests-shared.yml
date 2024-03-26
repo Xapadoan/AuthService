@@ -28,3 +28,6 @@ jobs:
         run: npm i
       - name: Run tests
         run: npm -w shared run test
+        env:
+          REDIS_HOST: 'host'
+          REDIS_PORT: 123
