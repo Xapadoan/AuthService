@@ -3,11 +3,11 @@ run-name: Push Service image
 
 on:
   push:
-    branches:
-      - ci/service-image-building
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  test_and_push:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
       - name: Setup

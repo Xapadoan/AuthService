@@ -1,9 +1,7 @@
 services:
   service:
     container_name: service
-    build:
-      context: ..
-      dockerfile: ./service/Dockerfile
+    image: xavierpadoan/authservice:latest
     environment:
       - DB_HOST=db
       - DB_PORT=${DB_PORT}
