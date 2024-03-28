@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Setup
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+      - name: Get Version
+        id: version
+        run: echo version=$(node -p "require('./service/package.json').version") >> $GITHUB_OUTPUT
       - name: Docker Login
         uses: docker/login-action@v3
         with:
@@ -28,4 +33,6 @@ jobs:
           platforms: linux/amd64
           file: ./service/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USER }}/authservice:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USER }}/authservice:latest
+            ${{ secrets.DOCKERHUB_USER }}/authservice:${{ steps.version.outputs.version }}
