@@ -19,4 +19,4 @@ WORKDIR /app/service
 
 RUN npx tsc --build /app/service/tsconfig.build.json && npx tsc-alias -p /app/service/tsconfig.build.json
 
-CMD ["node", "dist/index.js"]
+CMD ["NODE_ENV=production", "node", "dist/index.js"]
