@@ -10,8 +10,11 @@ import {
   RestoreInitServerOutput,
   RestoreUploadServerInput,
   RestoreSessionSetupInput,
+  ResetInitServiceInput,
+  ResetInitServerOutput,
   ResetConfirmServerOutput,
   ResetUploadServerInput,
+  ResetSessionSetupInput,
   SessionSetupServerOutput,
 } from '@authservice/shared';
 
@@ -27,7 +30,10 @@ export {
   RestoreInitServerOutput,
   RestoreUploadServerInput,
   RestoreSessionSetupInput,
+  ResetInitServiceInput,
+  ResetInitServerOutput,
   ResetConfirmServerOutput,
   ResetUploadServerInput,
+  ResetSessionSetupInput,
   SessionSetupServerOutput,
 };
